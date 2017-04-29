@@ -21,6 +21,9 @@ PERIODS = [["1992/", "1993/"],
 # Path to resources
 PATH = "resources/abstract/"
 
+# Path to files should be as follows
+# ./resources/abstract/1992/9201001.abs as an example
+
 
 # Given tuple of years from PERIODS and path, generate model
 # of word2vec for the period
@@ -37,8 +40,8 @@ def get_model(years, path):
         # For each file in year
         for f in os.listdir(path + year):
             # Get the file and open it for reading
-            path = os.path.abspath(path + year + f)
-            file = open(path, 'r')
+            path_file = os.path.abspath(path + year + f)
+            file = open(path_file, 'r')
 
             lines = file.readlines()
 
@@ -129,7 +132,7 @@ def plot_cls(vectors, num_clust):
     plt.scatter(centroids[:, 0], centroids[:, 1],
                 marker='x', s=169, linewidths=3,
                 color='w', zorder=10)
-    plt.title('K-means clustering on the digits dataset (PCA-reduced data)\n'
+    plt.title('K-means clustering on the abstract papers dataset (PCA-reduced data)\n'
               'Centroids are marked with white cross')
     plt.xlim(x_min, x_max)
     plt.ylim(y_min, y_max)
@@ -137,3 +140,7 @@ def plot_cls(vectors, num_clust):
     plt.yticks(())
     plt.show()
 
+model = get_model(PERIODS[0], PATH)
+vectors = get_vectors(model)
+num_clust = choose_num_clust(vectors, 4, 20)
+plot_cls(vectors, num_clust)
