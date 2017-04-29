@@ -1,0 +1,1036 @@
+%Paper: hep-th/9210126
+%From: koubek@tsmi19.sissa.it
+%Date: Fri, 23 Oct 1992 13:36:07 +0100
+
+%        Latex-File, including one figure in postscript: strip
+%                    off at tba-figure and put into a file tban.ps
+\documentstyle[12pt]{article}
+\renewcommand{\baselinestretch}{1.5}
+\textwidth 159mm
+\textheight 230mm
+\font\BB=msym10
+\def\R {\hbox{\BB R}}
+\def\C {\hbox{\BB C}}
+\def\Z {\hbox{\BB Z}}
+\def\Q {\hbox{\BB Q}}
+\def\LL {\hbox{\BB L}}
+\def\PP {\hbox{\BB P}}
+\def\be{\begin{equation}}
+\def\ee{\end{equation}}
+\def\bea{\begin{eqnarray}}
+\def\eea{\end{eqnarray}}
+\def\to{\rightarrow}
+\def\goto{\longrightarrow}
+\def\sa{\hspace{0.1in}}
+\def\hs{\hspace{0.1in}}
+\def\sb{\hspace{0.2in}}
+\def\sc{\hspace{0.3in}}
+\def\S{\hat{S}}
+\def\G{{\cal G}}
+\def\M{{\cal M}}
+\def\P{{\cal P}}
+\def\UG{U_q({\cal G})}
+\begin{document}
+\oddsidemargin 5mm
+\setcounter{page}{0}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+\newpage
+\setcounter{page}{0}
+\begin{titlepage}
+\begin{flushright}
+SISSA-ISAS 123/92/FM
+\end{flushright}
+\vspace{0.5cm}
+\begin{center}
+{\large {\bf A Multi-Grid Method for the Resolution of Thermodynamic
+Bethe Ansatz Equations
+}} \\
+\vspace{1.5cm}
+{Alfio Borz\`{\i} and Anni Koubek}\\
+\vspace{0.8cm}
+{\em SISSA, Scuola Internazionale Superiore di Studi Avanzati\\
+Via Beirut 2-4, \\
+34013 Trieste, \\ Italy} \\
+\end{center}
+\vspace{6mm}
+\begin{abstract}
+We present a multi-grid algorithm in order to solve numerically the
+ thermodynamic Bethe ansatz equations. We specifically adapt the program to
+ compute the data of the conformal field theory reached in the ultraviolet
+limit.
+\end{abstract}
+\vspace{5mm}
+{\em Program classification: 4.12-11.1}
+\end{titlepage}
+\newpage
+{\bf \LARGE
+PROGRAM SUMMARY
+}
+\begin{description}
+\item[] {\em Title of program:} TBA
+\item[] {\em Catalogue number:}
+\item[] {\em Program available from:} CPC Program Library, Queen's
+University of Belfast, N. Ireland
+\item[] {\em Computer:} IBM RS6000/560
+\item[] {\em Operating system:} AIX 3.2
+\item[] {\em Programming language used:} FORTRAN 77
+\item[] {\em Number of lines in program:} 1287
+\item[] {\em Key words:} two-dimensional systems away from criticality,
+conformal field theory, thermodynamic Bethe ansatz, multi-grid methods.
+\item[] {\em Nature of the physical problem:} resolve the thermodynamic
+Bethe ansatz equations corresponding to a factorized scattering theory
+and extract the data of the underlying conformal field theory reached in
+the ultraviolet limit.
+\item[] {\em Method of solution:} non linear multi-grid method with
+full adaptive scheme.
+\item[] {\em Typical running time:} strongly dependent on the dimension
+of the system of coupled integral equations, see Table 1.
+\item[] {\em References:}
+\begin{enumerate}
+\item A. Brandt, {\em Multi-grid techniques: 1984 guide with
+applications to fluid dynamics} (GMD-Studien. no 85,
+St. Augustin, Germany, 1984).
+\item W. Hackbusch,{\em Multi-grid methods and applications}
+(Sprin\-ger-Ver\-lag Berlin, Heidelberg, 1985).
+\item W.T. Vetterling, S.A. Teukolsky, W.H. Press, B.P. Flannery,
+{\em  Numerical reci\-pes: The art of scientific computing}
+(Cambridge University Press, New York, 1985).
+\end{enumerate}
+\end{description}
+
+\newpage
+\renewcommand{\thefootnote}{\arabic{footnote}}
+\setcounter{footnote}{0}
+%\resection{Introduction}
+{\bf \LARGE
+LONG WRITE-UP
+}
+\section{Introduction}
+
+Massive relativistic field theories can be described on-shell by their
+scattering matrix. This approach is specially fruitful in two dimensions,
+where there exists a large class of models which are integrable, and their
+$S$-matrix can be computed exactly, being factorizable \cite{zam}.
+ Unfortunately there is no general direct method in order to compute the
+$S$-matrix of a theory, but usually it is conjectured from general
+axioms and the underlying symmetries of the corresponding Hamiltonian.\\
+The thermodynamic Bethe ansatz (TBA) was developed in order to provide a
+means to link a conjectured scattering theory with the underlying field
+theory \cite{zamtba}. It describes the finite temperature effects of the
+factorized relativistic field theory, using the $S$ matrix as an input.
+If one studies the high temperature limit of the TBA equations, one can
+identify the conformal field theory (CFT) which governs the ultraviolet
+behaviour of the underlying
+ field theory. One should  though note, that it is not guaranteed
+that every consistent $S$-matrix describes the scattering in some field
+theoretical model! Therefore the axiomatic bootstrap approach is only
+of limited value if not linked to field theory by some means, wherefrom
+the TBA is one of the most powerful ones.\\
+Given the scattering data one can in most cases extract analytically the
+central charge of the CFT reached in the conformal limit, and in some
+cases the dimension of the perturbing operator, if the symmetry of the
+problem is known. Numerical calculations on the other hand can solve the
+TBA equations and therefore extract any measurable quantity.\\
+In \cite{zamtba,kl-me} the TBA equations were resolved by an iterative
+method. We propose here a multi-grid algorithm, which is considerable faster,
+an important fact if many particles are involved.
+The heart of the program is the resolution of the coupled integral
+equations. Around this core we have designed some utility-programs, in
+order to make the tool easier to use. We specialize our application to the
+case of diagonal $S$-matrices, see e.g. \cite{zamtba,kl-me,mar-diag}.
+As physical quantities we extract the central charge, the dimension of the
+perturbing field and the perturbation expansion.
+Note though, that one can easily add subroutines calculating other
+quantities.
+\section{The TBA Equations}
+Consider an integrable massive scattering theory on a cylinder.
+This implies factorized scattering, and so one
+can assume that the wave function of the particles is well described by a
+free wave function in the intermediate region of two scattering. Take the
+ansatz
+$$ \psi ( x_1 \dots x_n ) = e^{ i \sum p_j x_j } \sum _P A(P) \Theta(x_P
+) \sa ;$$
+$A(P)$ are coefficients of the momenta whose ordering is specified by
+$$ \Theta(x_P) = \left \{ \begin{array}{cc}
+1 & \mbox{{\rm if}} \sa \sa x_{p_1} < \dots < x_{p_n} \\
+0 & \mbox{{\rm otherwise}} \end{array} \right . \sa .
+$$
+ Let
+the permutation $P$ differ
+from $P'$ by the exchange of the indices $k$ and $j$. Then
+\be
+A(P') = S_{kj} (\beta_k-\beta_j) A(P) \sa .
+ \label{ex} \ee
+We impose antiperiodic boundary conditions for our wave functions,
+which provides that two particles cannot have equal momenta, leading to the
+condition
+\be A(k,p_2, \dots, p_n) = - e^{i p_k L} A(p_2,\dots ,p_n,k)
+\sa ,\label{nix} \ee
+$L$ being the length of the strip on which we consider the theory.
+ comparing (\ref{ex}) and (\ref{nix}), one realizes
+\be
+e^{i L m_k \sinh \beta_k}
+\prod_{j\neq k}S_{kj}(\beta_k-\beta_j) = -1 \sb {\rm for} \sb k=1,2,\dots n
+\sa .\ee
+We introduce the phase $ \delta_{kj} (\beta _k-\beta_j) \equiv
+- i \ln S_{kj}(\beta_k-\beta_j)$. In terms of these the equation become
+\be
+L m_k \sinh \beta_k + \sum_{j\neq k} \delta_{kj} (\beta_k - \beta_j) = 2
+\pi n_k \sb {\rm for} \sa k=1,2,\dots,n \sa , \label{above}
+\ee $n_k$ being some integers.
+These coupled transcendental equations for the rapidities are called
+the Bethe ansatz equations. One tries to solve these equations in the
+ thermodynamic limit introducing densities of rapidities for each
+particle species and transferring
+the equations into integral equations. That is, let $\rho_1^{(a)} (\beta)
+= \frac{n} {\Delta \beta}$, where we assume that there are $n$ particles in
+the small interval $\Delta \beta$,  be the particle density and
+$\rho^{(a)} (\beta)
+= \frac{n_k} {\Delta \beta}$ be the level density corresponding to the
+particle $a$, then (\ref{above}) becomes
+\be
+m_a L \cosh \beta + \sum_{b=1}^n\int_{-\infty}^{\infty}
+\varphi_{ab}(\beta-\beta')\rho_1^{(a)}
+ (\beta') d\beta' =
+2 \pi \rho^{(a)}  \sb . \label{dens}
+\ee
+In order to compute the ground state energy one needs to minimize the free
+energy
+\be R L f(\rho,\rho_1) =
+R H_B (\rho_1) + S (\rho, \rho_1 )\sb ,
+\ee
+where
+$H_B = \sum_a m_a \int \cosh \beta \rho_1^{(a)} d\beta$ and $S$ denotes the
+entropy. The extremum condition for a fermionic system\footnote{ We use
+the fermionic TBA equations since in diagonal scattering up to now they
+turned out to be the relevant ones, see e.g.\cite{zamtba} for the general
+theory }
+takes the form
+\be -r M_a \cosh \beta + \epsilon_a (\beta) =
+\sum_{b=1}^n\int_{-\infty}^{\infty} \varphi_{a b}
+(\beta - \beta ') \log (1 + e^{-\epsilon_b (\beta)})
+\frac{d \beta'}{2 \pi} \sb , \label{tba}
+\ee
+where we introduced the so-called pseudo-density
+$ e^{-\epsilon_a} \equiv \frac{ \rho_1^{(a)} }
+{\rho^{(a)} - \rho_1^{(a)} }$, the scaling length
+$r=R m_1$ and the rescaled masses $ M_a =\frac{m_a}{m_1}$; $m_1$ is the
+lightest particle mass. These coupled integral equations are called the
+TBA equations.
+ The extremal free energy depends only on the
+ratios $\frac{\rho_1^{(a)} }{\rho^{(a)} }$ and is given by
+\be f(r) = -\frac r{2 \pi} \sum_{a=1}^n  M_a \int_{-\infty}^{\infty}
+\cosh \beta \log(1 + e^{-\epsilon_a (\beta)}
+)  d \beta \sb .
+\ee
+
+One can extract several physical quantities from the solution of the
+TBA-equations (\cite{zamtba,mar-2,kl-me}). Since very little is known about
+non-critical systems, one tries to examine the equations in the ultraviolet
+limit, which corresponds to $ r \goto 0$, where the underlying field theory
+should become a CFT. The central charge is related to the vacuum bulk
+energy, and is given by
+\be
+c(r) = \frac{3 r}{\pi^2} \sum_{a=1}^{n} M_a \int _{-\infty}^{\infty}
+ \cosh \beta
+\log (1+e^{-\epsilon_a (\beta) }) d \beta \sb .
+\ee
+Having calculated the central charge one would like to extract the
+conformal dimension of the perturbing operator.
+For small $r$, one expects that $f(r)$ reproduces the behaviour predicted by
+conformal perturbation theory, which in terms of $c(r)$ reads as
+\be
+c(r)=c -  \frac{3 f_0}{ \pi} r^2 +
+\sum_{k=1}^{\infty} f_k r^{yk} \sb ,
+\label{exp}
+\ee
+with possible logarithmic corrections.
+
+The exponent $y$ is related to the perturbing field by $y=2(1-\Delta)$ if
+the theory is unitary and by $y=4(1-\Delta)$ if it is non-unitary. The
+coefficients are related to correlation functions of the CFT
+\cite{zamtba,kl-me}, and even if
+one cannot read them off directly, this is an ultimate important check of
+the theory.\\
+Note that the application chosen is not a limitation of the use of the
+program. Also non-diagonal S-matrices (see \cite{zam-nond})
+can be treated, since once one has
+diagonalized the transfer-matrix also in that case the numerical problem
+reduces to solving (\ref{tba}). Further quantities to measure can simply be
+added, and also one can study any range of $r$, being a parameter in the
+input-data.\\
+\section{Description of the Solution Method}
+Multi-grid (MG) schemes are known to be the most efficient methods for solving
+elliptic boundary value problems. Actually, the underlying idea of treating
+the different characteristic length scales of the problem on different grids,
+applies successfully also to the numerical
+resolution of various other problems, as
+the resolution of integral equations \cite{Bie,Hc}. The system of non linear
+Fredholm integral equations (\ref{tba}) has been
+solved using iterative methods \cite{zamtba,kl-me}. Even if these methods
+provide a satisfactory solution in terms of accuracy, the number of iterations
+and corresponding computer process (CPU) time required to reach a specified
+precision can become excessively large as the number of grid points $N$
+increases. Typically a simple one level relaxation
+would require $O(N^2 \log N)$ operations. With a multi-grid solution
+technique the computing time for integral equations is reduced to $O(N^2)$
+\cite{Hc}, and in particular cases to $O(N\log N)$ \cite{Bie},
+thus justifying the extra effort in programming.
+
+Now we define our numerical problem and we explain how the multi-grid
+scheme works for solving it. In discretising the
+TBA equations (\ref{tba}), we use the trapezoidal rule
+\cite{Bk} on a grid with mesh size $h$ so that our system yields
+\be
+\epsilon_a (\beta) =r M_a \cosh \beta +
+\frac{h}{2\pi}\sum_{b=1}^{n}\sum_{\beta'\in \Omega_h} w(\beta')
+\varphi_{a b} (\beta - \beta ') \log (1 + e^{-\epsilon_b (\beta')})
+\sb ,\label{tban}
+\ee
+$a=1,2,\dots,n $, $\beta\in \Omega_h$,
+where $\Omega_h$ is the set of grid points
+with grid spacing $h$. The weights are $w(\beta)=1$ unless on the boundary
+where $w(\beta)=1/2$.
+Now let us introduce a sequence of grids with mesh sizes
+$h_1>h_2>...>h_M$, so that $h_{\ell-1}=2 h_{\ell}$. The system (\ref{tban})
+with discretisation parameter $h_\ell$ will be denoted as
+\be
+\epsilon_a^\ell=K_{ab}^\ell(\epsilon_b^\ell)+f_a^\ell \sa ,\sa \sa
+a=1,2,\dots,n
+\sb ,\label{tbanc}
+\ee
+where a summation over $b$ is intended and where
+\be
+K_{ab}^\ell(\epsilon) (\beta) =
+\frac{h_\ell}{2\pi}\sum_{\beta'\in \Omega_{h_\ell}} w(\beta')
+\varphi_{a b} (\beta - \beta ') \log (1 + e^{-\epsilon (\beta')})\sb .
+\ee
+Following \cite{Hc} we have applied one (Gauss-Seidel) iteration
+to (\ref{tbanc}),
+and obtained the approximated solutions $\tilde{\epsilon}_a^\ell , \sa a=1,2,
+\dots,n$. We then transfer them onto the next coarser grid,
+$\tilde{\epsilon}_a^{\ell-1}=\hat{I}_\ell^{\ell-1}\tilde{\epsilon}_a^\ell$,
+where $\hat{I}_{\ell}^{\ell-1}$ is a restriction operator. The coarse grid
+equations become
+\be
+\hat{\epsilon}_a^{\ell-1}=K_{ab}^{\ell-1}(\hat{\epsilon}_b^{\ell-1})
++\hat{f}_a^{\ell-1}
+\sa , \sa a=1,2,\dots,n \sb ,
+\label{tbancc}
+\ee
+where
+\be
+\hat{f}_a^{\ell-1}=I_{\ell}^{\ell-1} f_a^\ell +
+\tilde{\epsilon}_a^{\ell-1}-K_{ab}^{\ell-1}(\tilde{\epsilon}_b^{\ell-1})
+%% FOLLOWING LINE CANNOT BE BROKEN BEFORE 80 CHAR
+-I_{\ell}^{\ell-1}(\tilde{\epsilon}_a^\ell-K_{ab}^\ell(\tilde{\epsilon}_b^\ell))
+\sb ,\ee
+and with $I_{\ell}^{\ell-1}$ another fine-to-coarse grid transfer operator
+not necessarily equal to $\hat{I}_{\ell}^{\ell-1}$.
+Having obtained the solution of the coarse grid equation
+$\hat{\epsilon}_a^{\ell-1}$ the difference
+$\hat{\epsilon}_a^{\ell-1}-\tilde{\epsilon}_a^{\ell-1}$ is the coarse-grid
+(CG) correction to the fine-grid solution
+\be
+\tilde{\epsilon}_a^{\ell}\leftarrow \tilde{\epsilon}_a^{\ell}+
+\hat{I}_{\ell-1}^{\ell}(\hat{\epsilon}_a^{\ell-1}-\tilde{\epsilon}_a^{\ell-1})
+\sb ,\ee
+$a=1,2,\dots,n$, and $\hat{I}_{\ell-1}^{\ell}$ is a coarse-to-fine grid
+interpolation operator. Finally we perform one relaxation at level $\ell$,
+in order to smoothen errors coming from the interpolation procedure.
+To solve the system of equations (\ref{tbanc}) we employ a coarse-grid
+correction recursively, i.e. equation (\ref{tbancc}) is itself solved by
+iteration sweeps combined with a further CG correction.
+
+
+\section{Numerical Performance}
+The algorithm used to solve equations (\ref{tbanc}) is a
+non-linear multi-grid (NMGM) method (\cite{Hc}) with full adaptive scheme
+(FAS) (\cite{Bg}). The program
+can perform different MG variants: V or W cycle and (non linear) nested
+iteration, depending on the value of the parameter chosen.
+In order to reduce the number of parameters as input we have fixed most of
+them, that is the parameter regarding the multi-grid cycle (in order
+to optimize it), leaving as an input only the physical ones.
+\vskip1.5truecm
+
+\begin{figure}[h]
+%\begin{center}
+\begin{picture}(300,240)(10,10)
+\special{tban.ps}
+\end{picture}
+%\end{center}
+\caption{Evolution of residual error norm with CPU time for a 1-particle
+system at $r=0.1$ for different HX: solid line for MG, dashed line
+for iteration only.}
+\end{figure}
+
+For any scaling length $r$ we use an initial approximation which behaves
+like $r M_a \cosh \beta$, wherefrom
+the program determines the numerical boundary at
+which the kernels vanish and verifies that
+the conditions for the existence of (at least) one solution given by the
+Schauder's fixed point theorem are satisfied \cite{P}.
+Having determined the size of the numerical domain for a given $r$ the number
+of levels $M$ is set such that the finest level has a mesh-size $h_M$ of
+order of HX, which is one of the input parameters.
+
+\begin{table}[t]
+\begin{center}
+\begin{tabular}{|c|c|c|}  \hline
+{\em no. equations} & \multicolumn{2}{c|}{\em CPU time (secs)} \\
+      &   Relax    &  Multi-Grid \\ \hline \hline
+  1   &   4        & 3        \\ \hline
+  2   &   34       & 22       \\ \hline
+  3   &   508      & 331      \\ \hline
+  4   &   1230     & 712     \\ \hline
+  5   &   2530     & 1320     \\ \hline
+\end{tabular}
+\end{center}
+\caption{A comparison of CPU time required to reach a particular value
+of the norm (19), for $r=0.1,\sa {\rm HX}=0.1$.}
+\end{table}
+
+We compare the performance of the MG and of a (Gauss-Seidel)
+iterative scheme in terms of CPU time in Figure 1, there the different initial
+residual error for MG and iterative scheme is due to the set up of the initial
+approximated solution in the MG cycle, that is a non-linear nested iteration
+which uses a MG cycle itself (see \cite{Hc}). As a norm for the residuals
+
+\be
+\tau_a (\beta)=(\epsilon_a-K_{ab}(\epsilon_b)-f_a)(\beta),\sa
+\sa \beta \in \Omega_{h_M}\sb,
+\ee
+we define the norm
+\be
+\parallel \tau \parallel_M =\max_{1\leq a \leq n} \sqrt{
+\sum_{\beta \in \Omega_{h_M}} \tau_a(\beta)^2} \sb.
+\ee
+
+\noindent
+In order to outline how
+the multi-grid algorithm becomes important as the number of particles
+increases we give in Table 1 the CPU time required by the two
+methods to solve the discretized problem to a value of the residual
+norm
+\be
+\parallel \tau \parallel_M \leq 1 \cdot 10^{-14}\sb .
+\label{norm}
+\ee
+
+ \section{Structure and Use of the Program}
+As already mentioned in the introduction the program consists of two parts:
+the core, which resolves the TBA-equations (\ref{tba}) and the periphery,
+which on the one hand constructs the kernel, and the initial solution
+, and on the other hand extracts from the solution the central charge, the
+dimension $y$ and the coefficients $f_i$ of the perturbation expansion
+ (\ref{exp}).\\
+We specifically designed the program for diagonal scattering theories, that
+is we are concerned with scalar $S$ matrices of the form
+\be S_{ab} = \prod _i f(\alpha_{ab}^i)\sa,\sb i=1,\dots,
+n_{ab}\sa,\sa a,b=1,\dots,n \ee
+with $$ f(\alpha)=\frac{\sinh \frac 12 ( \beta + i \pi \alpha)}
+{\sinh \frac 12 ( \beta - i \pi \alpha)}$$
+$n$ being the number of particles in the theory and $n_{ab}$ is the number
+of factors $f_x$ appearing in the $S$-matrix $S_{ab}$
+(for a recent review on this subject and many examples, see \cite{sasso}).
+The set of the numbers $\alpha$, and  the masses of the theory
+are sufficient to resolve the TBA-equations. \\
+As input-data we have therefore three data files: TBA.DAT containing
+general information about the range of $r$, the mesh-size
+and the number of particles,
+and the file ALPHA.DAT containing the values of $\alpha$ and MASS.DAT
+containing the values of the mass of the particles.
+{}From the input the program then constructs the kernel, and the
+initial approximation, which are then used by the multi-grid algorithm.
+The routine returns the solutions encoded in a matrix array Q which is stored
+in the output file SOL.DAT. The physical parameters are then calculated
+in the appropriate following subroutines, see the flow-diagram.
+
+We discuss here specific structure of the algorithm in terms of
+a simple example. Consider the $S$-matrix
+
+\be
+S_{11}=f_{\frac{2}{5}} f_{\frac{3}{5}},\sa
+S_{12}=S_{21}=f_{\frac{1}{5}} f_{\frac{2}{5}} f_{\frac{3}{5}} f_{\frac{4}{5}},
+\sa S_{22}=f_{\frac{1}{5}} f_{\frac{4}{5}} (f_{\frac{2}{5}} f_{\frac{3}{5}})^2,
+\ee
+being known to describe the minimal model $\M_{2,7}$, (i.e. $c_{eff}=
+\frac{4}{7}$) perturbed by the field with dimension $\Delta=-\frac{3}{7}$.
+The masses of the two particles are
+\be
+M_1=1 \sa, \sa \sa M_2= 2 \cos (\frac{\pi}{5}).
+\ee
+Then the input-file ALPHA.DAT should read as
+
+{\tt
+\begin{tabular}{rr}
+ 2.0 &  5.0 \\
+ 3.0 &  5.0 \\
+-2.0 &  1.0 \\
+ 1.0 &  5.0 \\
+ 4.0 &  5.0 \\
+ 2.0 &  5.0 \\
+ 3.0 &  5.0 \\
+-2.0 &  1.0 \\
+ 2.0 &  5.0 \\
+ 3.0 &  5.0 \\
+ 2.0 &  5.0 \\
+ 3.0 &  5.0 \\
+ 1.0 &  5.0 \\
+ 4.0 &  5.0 \\
+-2.0 &  1.0 \\
+\end{tabular}
+}
+
+\noindent
+Every factor $f_{\alpha}$ is characterized by two numbers which are the
+nominator and denominator of $\alpha$. As a field separator between values
+$\alpha$ belonging to different $S$-matrix elements one gives a number
+smaller than $-1$. Since the $S$-matrix is symmetric the program reads only
+the elements $S_{1,1},S_{1,2},\dots,S_{1,n};S_{2,2},\dots,S_{2,n};\dots;
+S_{n-1,n-1},S_{n-1,n};S_{n,n}$.
+
+The file MASS.DAT contains two values:
+
+{\tt
+\begin{tabular}{l}
+  1.0                 \\
+  1.618033988749895   \\
+\end{tabular}
+}
+
+\noindent
+Finally the file TBA.DAT contains in our example the following data
+
+{\tt \begin{tabular}{l}
+15,2 \\
+1.0d-14,1.0d-2\\
+0,1\\
+30,0.01,0.01\\
+20.0,7.0,0,0,4\\
+4.,7.\end{tabular}
+} corresponding to {\tt
+\begin{tabular}{l}
+I1,I2\\
+ZERO,HX\\
+NREL,IWRITE\\
+MAX,STEP,R0\\
+YN,YD,NY,NCEX,MFIT\\
+CEXN,CEXD\end{tabular} }
+
+\noindent
+These parameters are:
+\begin{itemize}
+\item[I1,I2:]
+ corresponding lengths of the files ALPHA.DAT and MASS.DAT (I2 coincides
+with the number of equations of our system, NSYS in the program);
+\item[ZERO:] the order of the value of the residual norm to be reached;
+HX the finest grid size;
+\item[NREL:]
+if NREL$=0$ multi-grid algorithm, if NREL$=1$ only relaxation is done
+\item[MAX:]
+ the number of different radii $r$ to be used; R0 is the smallest radius, and
+STEP give the step-size of the radius in the cycle;
+\item[YN, YD:]
+are the numerator and the denominator of
+the exact exponent if available, otherwise dummy numbers; if NY$=0$
+the exact exponent is used in the fitting procedure, if NY$=1$ the estimated
+$y$ is used; if MFIT$> 0$ the program calculates the first MFIT coefficients
+$f_i$ (in this case must be MAX $\geq{\rm  MFIT}+5$). Finally
+if NCEX$=0$, the exact charge (cexact=CEXN/CEXD)
+is used for the fitting procedure.
+\end{itemize}
+
+Some comments: The CPU time is mainly determined
+from the parameters NSYS, being the dimension of the system, MAX and HX.
+MAX is chosen corresponding
+to the physical parameters one wants to compute: in order to get a sensible
+result for the dimension $y$ it is enough to use MAX $\sim 5$, whereas if one
+wants to calculate the coefficients $f_i$ a larger number is required; for
+example with MAX$\geq 10$ one can get $f_1$ up to $O(10^{-5})$; the more
+data is used the better the fit-procedure \cite{NR} works and more
+coefficients can be obtained. HX determines the error of the integration
+routines calculating $c(r)$. In any case HX=$0.01$ should be sufficient.
+
+The program produces four files of output. If IWRITE=1 only the physical
+informations, that is $c$, $y$ and $f_i$ are stored in the file OUTPUT.DAT
+(see test-run output). When IWRITE=0 the program generates, in addition, the
+file RES.DAT which containes technical data and the evolution of the value of
+the residuals during the iterations. Together with RES.DAT other two files are
+written: TIME.DAT which containes the logarithm of the residual norm and the
+actual CPU time used, and SOL.DAT (where the solutions for any $r$ are stored).
+
+
+\section{Test-Run Output}
+The following file was produced using the input files described in the
+last section:
+\begin{enumerate}
+\item OUTPUT.DAT
+\begin{verbatim}
+   computed cexact =    .57142857D+00
+   r=   .100000000D-01  central charge=   .571403656E+00
+   r=   .200000000D-01  central charge=   .571329513E+00
+   r=   .300000000D-01  central charge=   .571206952E+00
+   r=   .400000000D-01  central charge=   .571036718E+00
+   r=   .500000000D-01  central charge=   .570819520E+00
+   r=   .600000000D-01  central charge=   .570556042E+00
+   r=   .700000000D-01  central charge=   .570246948E+00
+   r=   .800000000D-01  central charge=   .569892886E+00
+   r=   .900000000D-01  central charge=   .569494492E+00
+   r=   .100000000D+00  central charge=   .569052390E+00
+   r=   .110000000D+00  central charge=   .568567192E+00
+   r=   .120000000D+00  central charge=   .568039505E+00
+   r=   .130000000D+00  central charge=   .567469925E+00
+   r=   .140000000D+00  central charge=   .566859042E+00
+   r=   .150000000D+00  central charge=   .566207440E+00
+   r=   .160000000D+00  central charge=   .565515695E+00
+   r=   .170000000D+00  central charge=   .564784379E+00
+   r=   .180000000D+00  central charge=   .564014059E+00
+   r=   .190000000D+00  central charge=   .563205295E+00
+   r=   .200000000D+00  central charge=   .562358645E+00
+   r=   .210000000D+00  central charge=   .561474660E+00
+   r=   .220000000D+00  central charge=   .560553889E+00
+   r=   .230000000D+00  central charge=   .559596875E+00
+   r=   .240000000D+00  central charge=   .558604159E+00
+   r=   .250000000D+00  central charge=   .557576277E+00
+   r=   .260000000D+00  central charge=   .556513761E+00
+   r=   .270000000D+00  central charge=   .555417143E+00
+   r=   .280000000D+00  central charge=   .554286946E+00
+   r=   .290000000D+00  central charge=   .553123695E+00
+   r=   .300000000D+00  central charge=   .551927909E+00
+  error in extrapolation  .3365E-09
+  estimated exponent       .285714287D+01
+  theoretical exponent     .285714286D+01
+  estimated dimension of the corresponding operator
+  for a     unitary theory: DELTA=    .285714D+00
+  for a non-unitary theory: DELTA=   -.428571D+00
+   fitted f_i
+  f( 1)= .9643967331341316D-01
+  f( 2)=-.1538311769518447D-02
+  f( 3)= .6222166295705919D-04
+  f( 4)=-.3197939259001748D-05
+   chi-square value of the fitting=  .5164E-29
+   total cpu time (secs)   .113E+06
+\end{verbatim}
+\end{enumerate}
+\noindent
+\section{Conclusions}
+
+We presented a multi-grid scheme for the resolution of the thermodynamic
+Bethe ansatz equations. The TBA is a means to describe the finite
+temperature effects of relativistic factorized scattering theories.
+Our program is specifically designed for theories having a scalar
+$S$-matrix. These theories exhibit a unique form, and the only input needed
+in order to carry out the TBA are the locations of the poles and zeros of
+the single $S$-matrix elements.
+
+The program calculates the central charge and in the ultra-violet limit
+the dimension of the perturbing field and the coefficients of the
+perturbation expansion.
+These are the most crucial tests in verifying a conjectured $S$-matrix.
+It should not be difficult for the user to add subroutines calculating
+other physical quantities, as for example for magnetic systems the moments
+of the total magnetization, or the convergence-region of the perturbation
+series in (\ref{exp}) \cite{zamtba,kl-me}.
+
+In order to get sensible results for the physical quantities
+one needs to resolve the integral equations with the highest possible
+accuracy. This unfortunately renders the calculation extremely time consuming.
+Therefore the use of an efficient Multi-Grid algorithm gives the
+possibility to reach high accuracy in the computation together with a sensible
+reduction of the CPU time, in confrontation with standard
+iterative techniques.
+
+{\bf Acknowledgments}\\
+We are grateful to G. Mussardo and M. Martins for encouragement and
+discussions, and to A. Lanza for introducing us to the multi-grid
+method.
+%BIBLIO
+\newpage
+\begin{thebibliography}{99}
+\bibitem{zam} A.B. Zamolodchikov, {\em JETP Letters} {\bf 46} (1987) 160;
+{\em Int. Journ. Mod. Phys.} {\bf A3} (1988) 743;
+{\em Advanced Studies in Pure Mathematics} {\bf 19} (1989) 641.
+\bibitem{zamtba} Al.B. Zamolodchikov, {\em Nucl. Phys.} {\bf B342} (1990) 695.
+\bibitem{kl-me} T. Klassen, E. Melzer {\em Nucl. Phys.} {\bf B350} (1990) 635.
+\bibitem{mar-2} M.J. Martins, {\em Phys. Rev. Lett.} {\bf 67} (1991) 419.
+\bibitem{mar-diag} M.J. Martins, {\em Phys. Lett.} {\bf B240} (1990) 404;
+P. Christe, M.J. Martins, {\em Mod. Phys. Lett.} {\bf A5} (1990) 2189;
+A. Koubek, M.J. Martins, G. Mussardo {\em Nucl. Phys. } {\bf B368}
+(1992) 591.
+\bibitem{zam-nond} Al.B. Zamolodchikov, {\em Nucl. Phys.} {\bf B358}
+(1991) 497.
+\bibitem{sasso} G. Mussardo, {``Off-critical statistical models: factorized
+scattering theories and Bootstrap program''}, {\em Phys. Rep.}, to appear.
+\bibitem{Bie} A. Brandt, A.A. Lubrecht,
+ {\em J. Comp. Phys.} {\bf 90} (1990) 348.
+\bibitem{Bg} A. Brandt, {\em Multi-grid techniques: 1984 guide with
+applications to fluid dynamics} (GMD-Studien. no 85,
+St. Augustin, Germany, 1984).
+\bibitem{Bk} C.T.H. Baker,{\em The numerical treatment of integral equations}
+(Oxford University Press, London, 1977) p.110.
+\bibitem{Hc} W. Hackbusch,{\em Multi-Grid Methods and Applications}
+(Springer-Verlag Berlin, Heidelberg, 1985) p.305.
+\bibitem{P} W. Pogorzelski,{\em Integral Equations and their Applications,
+Vol. I} (PWN-Polish Scientific Publishers, Warsaw, 1966) p.201.
+\bibitem{NR} W.T. Vetterling, S.A. Teukolsky, W.H. Press, B.P. Flannery,
+{\em Numerical Recipes: The art of scientific computing} (Cambridge University
+Press, New York, 1985) p.521.
+\end{thebibliography}
+\end{document}
+
+%%%%%%%%%%%%%%% tba-figure  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%!PS-Adobe-1.0
+%%EndComments
+save 50 dict begin /psplot exch def
+/StartPSPlot
+   {newpath 0 0 moveto 0 setlinewidth 0 setgray 1 setlinecap
+    1 setlinejoin 72 300 div dup scale}def
+/pending {false} def
+/finish {pending {currentpoint stroke moveto /pending false def} if} def
+/r {finish newpath moveto} def
+/d {lineto /pending true def} def
+/l {finish 4 2 roll moveto lineto currentpoint stroke moveto} def
+/p {finish newpath moveto currentpoint lineto currentpoint stroke moveto} def
+/e {finish gsave showpage grestore newpath 0 0 moveto} def
+/lw {finish setlinewidth} def
+/lt0 {finish [] 0 setdash} def
+/lt1 {finish [3 5] 0 setdash} def
+/lt2 {finish [20 10] 0 setdash} def
+/lt3 {finish [60 10] 0 setdash} def
+/lt4 {finish [3 10 20 10] 0 setdash} def
+/lt5 {finish [3 10 60 10] 0 setdash} def
+/lt6 {finish [20 10 60 10] 0 setdash} def
+/EndPSPlot {clear psplot end restore}def
+% end fixed prolog
+StartPSPlot
+%%EndProlog
+%%Page: 1 1
+   1 lw lt0  400  300 r 1800  300 d  400  300 r  400  364 d  456  300 r
+  456  332 d  512  300 r  512  332 d  568  300 r  568  332 d  624  300 r
+  624  332 d  680  300 r  680  364 d  736  300 r  736  332 d  792  300 r
+  792  332 d  848  300 r  848  332 d  904  300 r  904  332 d  960  300 r
+  960  364 d 1016  300 r 1016  332 d 1072  300 r 1072  332 d 1128  300 r
+ 1128  332 d 1184  300 r 1184  332 d 1240  300 r 1240  364 d 1296  300 r
+ 1296  332 d 1352  300 r 1352  332 d 1408  300 r 1408  332 d 1464  300 r
+ 1464  332 d 1520  300 r 1520  364 d 1576  300 r 1576  332 d 1632  300 r
+ 1632  332 d 1688  300 r 1688  332 d 1744  300 r 1744  332 d 1800  300 r
+ 1800  364 d  398  260 r  392  258 d  388  252 d  386  242 d  386  236 d
+  388  226 d  392  220 d  398  218 d  402  218 d  408  220 d  412  226 d
+  414  236 d  414  242 d  412  252 d  408  258 d  402  260 d  398  260 d
+  394  258 d  392  256 d  390  252 d  388  242 d  388  236 d  390  226 d
+  392  222 d  394  220 d  398  218 d  402  218 r  406  220 d  408  222 d
+  410  226 d  412  236 d  412  242 d  410  252 d  408  256 d  406  258 d
+  402  260 d  632  252 r  636  254 d  642  260 d  642  218 d  640  258 r
+  640  218 d  632  218 r  650  218 d  678  260 r  672  258 d  668  252 d
+  666  242 d  666  236 d  668  226 d  672  220 d  678  218 d  682  218 d
+  688  220 d  692  226 d  694  236 d  694  242 d  692  252 d  688  258 d
+  682  260 d  678  260 d  674  258 d  672  256 d  670  252 d  668  242 d
+  668  236 d  670  226 d  672  222 d  674  220 d  678  218 d  682  218 r
+  686  220 d  688  222 d  690  226 d  692  236 d  692  242 d  690  252 d
+  688  256 d  686  258 d  682  260 d  718  260 r  712  258 d  708  252 d
+  706  242 d  706  236 d  708  226 d  712  220 d  718  218 d  722  218 d
+  728  220 d  732  226 d  734  236 d  734  242 d  732  252 d  728  258 d
+  722  260 d  718  260 d  714  258 d  712  256 d  710  252 d  708  242 d
+  708  236 d  710  226 d  712  222 d  714  220 d  718  218 d  722  218 r
+  726  220 d  728  222 d  730  226 d  732  236 d  732  242 d  730  252 d
+  728  256 d  726  258 d  722  260 d  908  252 r  910  250 d  908  248 d
+  906  250 d  906  252 d  908  256 d  910  258 d  916  260 d  924  260 d
+  930  258 d  932  256 d  934  252 d  934  248 d  932  244 d  926  240 d
+  916  236 d  912  234 d  908  230 d  906  224 d  906  218 d  924  260 r
+  928  258 d  930  256 d  932  252 d  932  248 d  930  244 d  924  240 d
+  916  236 d  906  222 r  908  224 d  912  224 d  922  220 d  928  220 d
+  932  222 d  934  224 d  912  224 r  922  218 d  930  218 d  932  220 d
+  934  224 d  934  228 d  958  260 r  952  258 d  948  252 d  946  242 d
+  946  236 d  948  226 d  952  220 d  958  218 d  962  218 d  968  220 d
+  972  226 d  974  236 d  974  242 d  972  252 d  968  258 d  962  260 d
+  958  260 d  954  258 d  952  256 d  950  252 d  948  242 d  948  236 d
+  950  226 d  952  222 d  954  220 d  958  218 d  962  218 r  966  220 d
+  968  222 d  970  226 d  972  236 d  972  242 d  970  252 d  968  256 d
+  966  258 d  962  260 d  998  260 r  992  258 d  988  252 d  986  242 d
+  986  236 d  988  226 d  992  220 d  998  218 d 1002  218 d 1008  220 d
+ 1012  226 d 1014  236 d 1014  242 d 1012  252 d 1008  258 d 1002  260 d
+  998  260 d  994  258 d  992  256 d  990  252 d  988  242 d  988  236 d
+  990  226 d  992  222 d  994  220 d  998  218 d 1002  218 r 1006  220 d
+ 1008  222 d 1010  226 d 1012  236 d 1012  242 d 1010  252 d 1008  256 d
+ 1006  258 d 1002  260 d 1188  254 r 1190  252 d 1188  250 d 1186  252 d
+ 1186  254 d 1190  258 d 1196  260 d 1204  260 d 1210  258 d 1212  254 d
+ 1212  248 d 1210  244 d 1204  242 d 1198  242 d 1204  260 r 1208  258 d
+ 1210  254 d 1210  248 d 1208  244 d 1204  242 d 1208  240 d 1212  236 d
+ 1214  232 d 1214  226 d 1212  222 d 1210  220 d 1204  218 d 1196  218 d
+ 1190  220 d 1188  222 d 1186  226 d 1186  228 d 1188  230 d 1190  228 d
+ 1188  226 d 1210  238 r 1212  232 d 1212  226 d 1210  222 d 1208  220 d
+ 1204  218 d 1238  260 r 1232  258 d 1228  252 d 1226  242 d 1226  236 d
+ 1228  226 d 1232  220 d 1238  218 d 1242  218 d 1248  220 d 1252  226 d
+ 1254  236 d 1254  242 d 1252  252 d 1248  258 d 1242  260 d 1238  260 d
+ 1234  258 d 1232  256 d 1230  252 d 1228  242 d 1228  236 d 1230  226 d
+ 1232  222 d 1234  220 d 1238  218 d 1242  218 r 1246  220 d 1248  222 d
+ 1250  226 d 1252  236 d 1252  242 d 1250  252 d 1248  256 d 1246  258 d
+ 1242  260 d 1278  260 r 1272  258 d 1268  252 d 1266  242 d 1266  236 d
+ 1268  226 d 1272  220 d 1278  218 d 1282  218 d 1288  220 d 1292  226 d
+ 1294  236 d 1294  242 d 1292  252 d 1288  258 d 1282  260 d 1278  260 d
+ 1274  258 d 1272  256 d 1270  252 d 1268  242 d 1268  236 d 1270  226 d
+ 1272  222 d 1274  220 d 1278  218 d 1282  218 r 1286  220 d 1288  222 d
+ 1290  226 d 1292  236 d 1292  242 d 1290  252 d 1288  256 d 1286  258 d
+ 1282  260 d 1484  256 r 1484  218 d 1486  260 r 1486  218 d 1486  260 r
+ 1464  230 d 1496  230 d 1478  218 r 1492  218 d 1518  260 r 1512  258 d
+ 1508  252 d 1506  242 d 1506  236 d 1508  226 d 1512  220 d 1518  218 d
+ 1522  218 d 1528  220 d 1532  226 d 1534  236 d 1534  242 d 1532  252 d
+ 1528  258 d 1522  260 d 1518  260 d 1514  258 d 1512  256 d 1510  252 d
+ 1508  242 d 1508  236 d 1510  226 d 1512  222 d 1514  220 d 1518  218 d
+ 1522  218 r 1526  220 d 1528  222 d 1530  226 d 1532  236 d 1532  242 d
+ 1530  252 d 1528  256 d 1526  258 d 1522  260 d 1558  260 r 1552  258 d
+ 1548  252 d 1546  242 d 1546  236 d 1548  226 d 1552  220 d 1558  218 d
+ 1562  218 d 1568  220 d 1572  226 d 1574  236 d 1574  242 d 1572  252 d
+ 1568  258 d 1562  260 d 1558  260 d 1554  258 d 1552  256 d 1550  252 d
+ 1548  242 d 1548  236 d 1550  226 d 1552  222 d 1554  220 d 1558  218 d
+ 1562  218 r 1566  220 d 1568  222 d 1570  226 d 1572  236 d 1572  242 d
+ 1570  252 d 1568  256 d 1566  258 d 1562  260 d 1750  260 r 1746  240 d
+ 1750  242 d 1756  244 d 1762  244 d 1768  242 d 1772  238 d 1774  232 d
+ 1774  230 d 1772  224 d 1768  220 d 1762  218 d 1756  218 d 1750  220 d
+ 1748  222 d 1746  226 d 1746  228 d 1748  230 d 1750  228 d 1748  226 d
+ 1762  244 r 1766  242 d 1770  238 d 1772  232 d 1772  230 d 1770  224 d
+ 1766  220 d 1762  218 d 1750  260 r 1770  260 d 1750  258 r 1760  258 d
+ 1770  260 d 1798  260 r 1792  258 d 1788  252 d 1786  242 d 1786  236 d
+ 1788  226 d 1792  220 d 1798  218 d 1802  218 d 1808  220 d 1812  226 d
+ 1814  236 d 1814  242 d 1812  252 d 1808  258 d 1802  260 d 1798  260 d
+ 1794  258 d 1792  256 d 1790  252 d 1788  242 d 1788  236 d 1790  226 d
+ 1792  222 d 1794  220 d 1798  218 d 1802  218 r 1806  220 d 1808  222 d
+ 1810  226 d 1812  236 d 1812  242 d 1810  252 d 1808  256 d 1806  258 d
+ 1802  260 d 1838  260 r 1832  258 d 1828  252 d 1826  242 d 1826  236 d
+ 1828  226 d 1832  220 d 1838  218 d 1842  218 d 1848  220 d 1852  226 d
+ 1854  236 d 1854  242 d 1852  252 d 1848  258 d 1842  260 d 1838  260 d
+ 1834  258 d 1832  256 d 1830  252 d 1828  242 d 1828  236 d 1830  226 d
+ 1832  222 d 1834  220 d 1838  218 d 1842  218 r 1846  220 d 1848  222 d
+ 1850  226 d 1852  236 d 1852  242 d 1850  252 d 1848  256 d 1846  258 d
+ 1842  260 d  400 1100 r 1800 1100 d  400 1100 r  400 1036 d  456 1100 r
+  456 1068 d  512 1100 r  512 1068 d  568 1100 r  568 1068 d  624 1100 r
+  624 1068 d  680 1100 r  680 1036 d  736 1100 r  736 1068 d  792 1100 r
+  792 1068 d  848 1100 r  848 1068 d  904 1100 r  904 1068 d  960 1100 r
+  960 1036 d 1016 1100 r 1016 1068 d 1072 1100 r 1072 1068 d 1128 1100 r
+ 1128 1068 d 1184 1100 r 1184 1068 d 1240 1100 r 1240 1036 d 1296 1100 r
+ 1296 1068 d 1352 1100 r 1352 1068 d 1408 1100 r 1408 1068 d 1464 1100 r
+ 1464 1068 d 1520 1100 r 1520 1036 d 1576 1100 r 1576 1068 d 1632 1100 r
+ 1632 1068 d 1688 1100 r 1688 1068 d 1744 1100 r 1744 1068 d 1800 1100 r
+ 1800 1036 d  400  300 r  400 1100 d  400  300 r  464  300 d  400  353 r
+  432  353 d  400  407 r  432  407 d  400  460 r  432  460 d  400  513 r
+  432  513 d  400  567 r  464  567 d  400  620 r  432  620 d  400  673 r
+  432  673 d  400  727 r  432  727 d  400  780 r  432  780 d  400  833 r
+  464  833 d  400  887 r  432  887 d  400  940 r  432  940 d  400  993 r
+  432  993 d  400 1047 r  432 1047 d  400 1100 r  464 1100 d  346  324 r
+  340  322 d  336  316 d  334  306 d  334  300 d  336  290 d  340  284 d
+  346  282 d  350  282 d  356  284 d  360  290 d  362  300 d  362  306 d
+  360  316 d  356  322 d  350  324 d  346  324 d  342  322 d  340  320 d
+  338  316 d  336  306 d  336  300 d  338  290 d  340  286 d  342  284 d
+  346  282 d  350  282 r  354  284 d  356  286 d  358  290 d  360  300 d
+  360  306 d  358  316 d  356  320 d  354  322 d  350  324 d  286  567 r
+  322  567 d  338  591 r  334  571 d  338  573 d  344  575 d  350  575 d
+  356  573 d  360  569 d  362  563 d  362  561 d  360  555 d  356  551 d
+  350  549 d  344  549 d  338  551 d  336  553 d  334  557 d  334  559 d
+  336  561 d  338  559 d  336  557 d  350  575 r  354  573 d  358  569 d
+  360  563 d  360  561 d  358  555 d  354  551 d  350  549 d  338  591 r
+  358  591 d  338  589 r  348  589 d  358  591 d  246  833 r  282  833 d
+  300  849 r  304  851 d  310  857 d  310  815 d  308  855 r  308  815 d
+  300  815 r  318  815 d  346  857 r  340  855 d  336  849 d  334  839 d
+  334  833 d  336  823 d  340  817 d  346  815 d  350  815 d  356  817 d
+  360  823 d  362  833 d  362  839 d  360  849 d  356  855 d  350  857 d
+  346  857 d  342  855 d  340  853 d  338  849 d  336  839 d  336  833 d
+  338  823 d  340  819 d  342  817 d  346  815 d  350  815 r  354  817 d
+  356  819 d  358  823 d  360  833 d  360  839 d  358  849 d  356  853 d
+  354  855 d  350  857 d  246 1100 r  282 1100 d  300 1116 r  304 1118 d
+  310 1124 d  310 1082 d  308 1122 r  308 1082 d  300 1082 r  318 1082 d
+  338 1124 r  334 1104 d  338 1106 d  344 1108 d  350 1108 d  356 1106 d
+  360 1102 d  362 1096 d  362 1094 d  360 1088 d  356 1084 d  350 1082 d
+  344 1082 d  338 1084 d  336 1086 d  334 1090 d  334 1092 d  336 1094 d
+  338 1092 d  336 1090 d  350 1108 r  354 1106 d  358 1102 d  360 1096 d
+  360 1094 d  358 1088 d  354 1084 d  350 1082 d  338 1124 r  358 1124 d
+  338 1122 r  348 1122 d  358 1124 d 1800  300 r 1800 1100 d 1800  300 r
+ 1736  300 d 1800  353 r 1768  353 d 1800  407 r 1768  407 d 1800  460 r
+ 1768  460 d 1800  513 r 1768  513 d 1800  567 r 1736  567 d 1800  620 r
+ 1768  620 d 1800  673 r 1768  673 d 1800  727 r 1768  727 d 1800  780 r
+ 1768  780 d 1800  833 r 1736  833 d 1800  887 r 1768  887 d 1800  940 r
+ 1768  940 d 1800  993 r 1768  993 d 1800 1047 r 1768 1047 d 1800 1100 r
+ 1736 1100 d  497  585 r  629  837 d  674  772 r  668  770 d  664  764 d
+  662  754 d  662  748 d  664  738 d  668  732 d  674  730 d  678  730 d
+  684  732 d  688  738 d  690  748 d  690  754 d  688  764 d  684  770 d
+  678  772 d  674  772 d  670  770 d  668  768 d  666  764 d  664  754 d
+  664  748 d  666  738 d  668  734 d  670  732 d  674  730 d  678  730 r
+  682  732 d  684  734 d  686  738 d  688  748 d  688  754 d  686  764 d
+  684  768 d  682  770 d  678  772 d  704  734 r  702  732 d  704  730 d
+  706  732 d  704  734 d  730  772 r  724  770 d  720  764 d  718  754 d
+  718  748 d  720  738 d  724  732 d  730  730 d  734  730 d  740  732 d
+  744  738 d  746  748 d  746  754 d  744  764 d  740  770 d  734  772 d
+  730  772 d  726  770 d  724  768 d  722  764 d  720  754 d  720  748 d
+  722  738 d  724  734 d  726  732 d  730  730 d  734  730 r  738  732 d
+  740  734 d  742  738 d  744  748 d  744  754 d  742  764 d  740  768 d
+  738  770 d  734  772 d  764  764 r  768  766 d  774  772 d  774  730 d
+  772  770 r  772  730 d  764  730 r  782  730 d lt2  499  300 r  548  345 d
+  598  393 d  648  442 d  699  494 d  750  548 d  800  606 d  849  669 d
+  897  737 d  947  806 d  997  859 d lt0  779  642 r 1309  909 d 1370  665 r
+ 1364  663 d 1360  657 d 1358  647 d 1358  641 d 1360  631 d 1364  625 d
+ 1370  623 d 1374  623 d 1380  625 d 1384  631 d 1386  641 d 1386  647 d
+ 1384  657 d 1380  663 d 1374  665 d 1370  665 d 1366  663 d 1364  661 d
+ 1362  657 d 1360  647 d 1360  641 d 1362  631 d 1364  627 d 1366  625 d
+ 1370  623 d 1374  623 r 1378  625 d 1380  627 d 1382  631 d 1384  641 d
+ 1384  647 d 1382  657 d 1380  661 d 1378  663 d 1374  665 d 1400  627 r
+ 1398  625 d 1400  623 d 1402  625 d 1400  627 d 1426  665 r 1420  663 d
+ 1416  657 d 1414  647 d 1414  641 d 1416  631 d 1420  625 d 1426  623 d
+ 1430  623 d 1436  625 d 1440  631 d 1442  641 d 1442  647 d 1440  657 d
+ 1436  663 d 1430  665 d 1426  665 d 1422  663 d 1420  661 d 1418  657 d
+ 1416  647 d 1416  641 d 1418  631 d 1420  627 d 1422  625 d 1426  623 d
+ 1430  623 r 1434  625 d 1436  627 d 1438  631 d 1440  641 d 1440  647 d
+ 1438  657 d 1436  661 d 1434  663 d 1430  665 d 1466  665 r 1460  663 d
+ 1456  657 d 1454  647 d 1454  641 d 1456  631 d 1460  625 d 1466  623 d
+ 1470  623 d 1476  625 d 1480  631 d 1482  641 d 1482  647 d 1480  657 d
+ 1476  663 d 1470  665 d 1466  665 d 1462  663 d 1460  661 d 1458  657 d
+ 1456  647 d 1456  641 d 1458  631 d 1460  627 d 1462  625 d 1466  623 d
+ 1470  623 r 1474  625 d 1476  627 d 1478  631 d 1480  641 d 1480  647 d
+ 1478  657 d 1476  661 d 1474  663 d 1470  665 d 1498  665 r 1494  645 d
+ 1498  647 d 1504  649 d 1510  649 d 1516  647 d 1520  643 d 1522  637 d
+ 1522  635 d 1520  629 d 1516  625 d 1510  623 d 1504  623 d 1498  625 d
+ 1496  627 d 1494  631 d 1494  633 d 1496  635 d 1498  633 d 1496  631 d
+ 1510  649 r 1514  647 d 1518  643 d 1520  637 d 1520  635 d 1518  629 d
+ 1514  625 d 1510  623 d 1498  665 r 1518  665 d 1498  663 r 1508  663 d
+ 1518  665 d lt2  840  300 r 1000  338 d 1198  385 d 1398  435 d 1597  486 d
+ 1794  541 d 1800  543 d lt0  853  190 r  855  186 d  855  196 d  853  190 d
+  849  194 d  843  196 d  839  196 d  833  194 d  829  190 d  827  186 d
+  825  180 d  825  170 d  827  164 d  829  160 d  833  156 d  839  154 d
+  843  154 d  849  156 d  853  160 d  855  164 d  839  196 r  835  194 d
+  831  190 d  829  186 d  827  180 d  827  170 d  829  164 d  831  160 d
+  835  156 d  839  154 d  871  196 r  871  154 d  873  196 r  873  154 d
+  865  196 r  889  196 d  895  194 d  897  192 d  899  188 d  899  182 d
+  897  178 d  895  176 d  889  174 d  873  174 d  889  196 r  893  194 d
+  895  192 d  897  188 d  897  182 d  895  178 d  893  176 d  889  174 d
+  865  154 r  879  154 d  915  196 r  915  166 d  917  160 d  921  156 d
+  927  154 d  931  154 d  937  156 d  941  160 d  943  166 d  943  196 d
+  917  196 r  917  166 d  919  160 d  923  156 d  927  154 d  909  196 r
+  923  196 d  937  196 r  949  196 d  999  196 r  999  162 d 1001  156 d
+ 1005  154 d 1009  154 d 1013  156 d 1015  160 d 1001  196 r 1001  162 d
+ 1003  156 d 1005  154 d  993  182 r 1009  182 d 1029  196 r 1027  194 d
+ 1029  192 d 1031  194 d 1029  196 d 1029  182 r 1029  154 d 1031  182 r
+ 1031  154 d 1023  182 r 1031  182 d 1023  154 r 1037  154 d 1051  182 r
+ 1051  154 d 1053  182 r 1053  154 d 1053  176 r 1057  180 d 1063  182 d
+ 1067  182 d 1073  180 d 1075  176 d 1075  154 d 1067  182 r 1071  180 d
+ 1073  176 d 1073  154 d 1075  176 r 1079  180 d 1085  182 d 1089  182 d
+ 1095  180 d 1097  176 d 1097  154 d 1089  182 r 1093  180 d 1095  176 d
+ 1095  154 d 1045  182 r 1053  182 d 1045  154 r 1059  154 d 1067  154 r
+ 1081  154 d 1089  154 r 1103  154 d 1115  170 r 1139  170 d 1139  174 d
+ 1137  178 d 1135  180 d 1131  182 d 1125  182 d 1119  180 d 1115  176 d
+ 1113  170 d 1113  166 d 1115  160 d 1119  156 d 1125  154 d 1129  154 d
+ 1135  156 d 1139  160 d 1137  170 r 1137  176 d 1135  180 d 1125  182 r
+ 1121  180 d 1117  176 d 1115  170 d 1115  166 d 1117  160 d 1121  156 d
+ 1125  154 d 1203  204 r 1199  200 d 1195  194 d 1191  186 d 1189  176 d
+ 1189  168 d 1191  158 d 1195  150 d 1199  144 d 1203  140 d 1199  200 r
+ 1195  192 d 1193  186 d 1191  176 d 1191  168 d 1193  158 d 1195  152 d
+ 1199  144 d 1235  180 r 1237  182 d 1237  176 d 1235  180 d 1229  182 d
+ 1223  182 d 1217  180 d 1215  178 d 1215  176 d 1217  172 d 1221  170 d
+ 1231  166 d 1235  164 d 1237  162 d 1215  176 r 1217  174 d 1221  172 d
+ 1231  168 d 1235  166 d 1237  162 d 1237  158 d 1235  156 d 1229  154 d
+ 1223  154 d 1217  156 d 1215  160 d 1215  154 d 1217  156 d 1251  170 r
+ 1275  170 d 1275  174 d 1273  178 d 1271  180 d 1267  182 d 1261  182 d
+ 1255  180 d 1251  176 d 1249  170 d 1249  166 d 1251  160 d 1255  156 d
+ 1261  154 d 1265  154 d 1271  156 d 1275  160 d 1273  170 r 1273  176 d
+ 1271  180 d 1261  182 r 1257  180 d 1253  176 d 1251  170 d 1251  166 d
+ 1253  160 d 1257  156 d 1261  154 d 1311  176 r 1309  174 d 1311  172 d
+ 1313  174 d 1313  176 d 1309  180 d 1305  182 d 1299  182 d 1293  180 d
+ 1289  176 d 1287  170 d 1287  166 d 1289  160 d 1293  156 d 1299  154 d
+ 1303  154 d 1309  156 d 1313  160 d 1299  182 r 1295  180 d 1291  176 d
+ 1289  170 d 1289  166 d 1291  160 d 1295  156 d 1299  154 d 1345  180 r
+ 1347  182 d 1347  176 d 1345  180 d 1339  182 d 1333  182 d 1327  180 d
+ 1325  178 d 1325  176 d 1327  172 d 1331  170 d 1341  166 d 1345  164 d
+ 1347  162 d 1325  176 r 1327  174 d 1331  172 d 1341  168 d 1345  166 d
+ 1347  162 d 1347  158 d 1345  156 d 1339  154 d 1333  154 d 1327  156 d
+ 1325  160 d 1325  154 d 1327  156 d 1359  204 r 1363  200 d 1367  194 d
+ 1371  186 d 1373  176 d 1373  168 d 1371  158 d 1367  150 d 1363  144 d
+ 1359  140 d 1363  200 r 1367  192 d 1369  186 d 1371  176 d 1371  168 d
+ 1369  158 d 1367  152 d 1363  144 d  136  283 r  178  283 d  136  285 r
+  178  285 d  136  277 r  136  291 d  178  277 r  178  307 d  168  307 d
+  178  305 d  150  329 r  152  323 d  156  319 d  162  317 d  166  317 d
+  172  319 d  176  323 d  178  329 d  178  333 d  176  339 d  172  343 d
+  166  345 d  162  345 d  156  343 d  152  339 d  150  333 d  150  329 d
+  152  325 d  156  321 d  162  319 d  166  319 d  172  321 d  176  325 d
+  178  329 d  178  333 r  176  337 d  172  341 d  166  343 d  162  343 d
+  156  341 d  152  337 d  150  333 d  150  369 r  152  365 d  154  363 d
+  158  361 d  162  361 d  166  363 d  168  365 d  170  369 d  170  373 d
+  168  377 d  166  379 d  162  381 d  158  381 d  154  379 d  152  377 d
+  150  373 d  150  369 d  152  365 r  156  363 d  164  363 d  168  365 d
+  168  377 r  164  379 d  156  379 d  152  377 d  154  379 r  152  381 d
+  150  385 d  152  385 d  152  381 d  166  363 r  168  361 d  172  359 d
+  174  359 d  178  361 d  180  367 d  180  377 d  182  383 d  184  385 d
+  174  359 r  176  361 d  178  367 d  178  377 d  180  383 d  184  385 d
+  186  385 d  190  383 d  192  377 d  192  365 d  190  359 d  186  357 d
+  184  357 d  180  359 d  178  365 d  170  420 r  168  422 d  165  426 d
+  190  426 d  166  425 r  190  425 d  190  420 r  190  431 d  165  447 r
+  166  444 d  170  441 d  176  440 d  179  440 d  185  441 d  189  444 d
+  190  447 d  190  450 d  189  453 d  185  456 d  179  457 d  176  457 d
+  170  456 d  166  453 d  165  450 d  165  447 d  166  445 d  167  444 d
+  170  443 d  176  441 d  179  441 d  185  443 d  188  444 d  189  445 d
+  190  447 d  190  450 r  189  452 d  188  453 d  185  455 d  179  456 d
+  176  456 d  170  455 d  167  453 d  166  452 d  165  450 d  150  515 r
+  152  509 d  156  505 d  162  503 d  166  503 d  172  505 d  176  509 d
+  178  515 d  178  519 d  176  525 d  172  529 d  166  531 d  162  531 d
+  156  529 d  152  525 d  150  519 d  150  515 d  152  511 d  156  507 d
+  162  505 d  166  505 d  172  507 d  176  511 d  178  515 d  178  519 r
+  176  523 d  172  527 d  166  529 d  162  529 d  156  527 d  152  523 d
+  150  519 d  138  557 r  140  555 d  142  557 d  140  559 d  138  559 d
+  136  557 d  136  553 d  138  549 d  142  547 d  178  547 d  136  553 r
+  138  551 d  142  549 d  178  549 d  150  541 r  150  555 d  178  541 r
+  178  555 d  150  607 r  178  607 d  150  609 r  178  609 d  162  609 r
+  156  611 d  152  615 d  150  619 d  150  625 d  152  627 d  154  627 d
+  156  625 d  154  623 d  152  625 d  150  601 r  150  609 d  178  601 r
+  178  615 d  162  639 r  162  663 d  158  663 d  154  661 d  152  659 d
+  150  655 d  150  649 d  152  643 d  156  639 d  162  637 d  166  637 d
+  172  639 d  176  643 d  178  649 d  178  653 d  176  659 d  172  663 d
+  162  661 r  156  661 d  152  659 d  150  649 r  152  645 d  156  641 d
+  162  639 d  166  639 d  172  641 d  176  645 d  178  649 d  152  695 r
+  150  697 d  156  697 d  152  695 d  150  689 d  150  683 d  152  677 d
+  154  675 d  156  675 d  160  677 d  162  681 d  166  691 d  168  695 d
+  170  697 d  156  675 r  158  677 d  160  681 d  164  691 d  166  695 d
+  170  697 d  174  697 d  176  695 d  178  689 d  178  683 d  176  677 d
+  172  675 d  178  675 d  176  677 d  136  713 r  138  711 d  140  713 d
+  138  715 d  136  713 d  150  713 r  178  713 d  150  715 r  178  715 d
+  150  707 r  150  715 d  178  707 r  178  721 d  136  755 r  178  755 d
+  136  757 r  178  757 d  156  755 r  152  751 d  150  747 d  150  743 d
+  152  737 d  156  733 d  162  731 d  166  731 d  172  733 d  176  737 d
+  178  743 d  178  747 d  176  751 d  172  755 d  150  743 r  152  739 d
+  156  735 d  162  733 d  166  733 d  172  735 d  176  739 d  178  743 d
+  136  749 r  136  757 d  178  755 r  178  763 d  150  777 r  172  777 d
+  176  779 d  178  785 d  178  789 d  176  795 d  172  799 d  150  779 r
+  172  779 d  176  781 d  178  785 d  150  799 r  178  799 d  150  801 r
+  178  801 d  150  771 r  150  779 d  150  793 r  150  801 d  178  799 r
+  178  807 d  154  821 r  156  821 d  156  819 d  154  819 d  152  821 d
+  150  825 d  150  833 d  152  837 d  154  839 d  158  841 d  172  841 d
+  176  843 d  178  845 d  154  839 r  172  839 d  176  841 d  178  845 d
+  178  847 d  158  839 r  160  837 d  162  825 d  164  819 d  168  817 d
+  172  817 d  176  819 d  178  825 d  178  831 d  176  835 d  172  839 d
+  162  825 r  164  821 d  168  819 d  172  819 d  176  821 d  178  825 d
+  136  861 r  178  861 d  136  863 r  178  863 d  136  855 r  136  863 d
+  178  855 r  178  869 d  150  919 r  178  919 d  150  921 r  178  921 d
+  156  921 r  152  925 d  150  931 d  150  935 d  152  941 d  156  943 d
+  178  943 d  150  935 r  152  939 d  156  941 d  178  941 d  150  913 r
+  150  921 d  178  913 r  178  927 d  178  935 r  178  949 d  150  971 r
+  152  965 d  156  961 d  162  959 d  166  959 d  172  961 d  176  965 d
+  178  971 d  178  975 d  176  981 d  172  985 d  166  987 d  162  987 d
+  156  985 d  152  981 d  150  975 d  150  971 d  152  967 d  156  963 d
+  162  961 d  166  961 d  172  963 d  176  967 d  178  971 d  178  975 r
+  176  979 d  172  983 d  166  985 d  162  985 d  156  983 d  152  979 d
+  150  975 d  150 1003 r  178 1003 d  150 1005 r  178 1005 d  162 1005 r
+  156 1007 d  152 1011 d  150 1015 d  150 1021 d  152 1023 d  154 1023 d
+  156 1021 d  154 1019 d  152 1021 d  150  997 r  150 1005 d  178  997 r
+  178 1011 d  150 1037 r  178 1037 d  150 1039 r  178 1039 d  156 1039 r
+  152 1043 d  150 1049 d  150 1053 d  152 1059 d  156 1061 d  178 1061 d
+  150 1053 r  152 1057 d  156 1059 d  178 1059 d  156 1061 r  152 1065 d
+  150 1071 d  150 1075 d  152 1081 d  156 1083 d  178 1083 d  150 1075 r
+  152 1079 d  156 1081 d  178 1081 d  150 1031 r  150 1039 d  178 1031 r
+  178 1045 d  178 1053 r  178 1067 d  178 1075 r  178 1089 d  152 1119 r
+  150 1121 d  156 1121 d  152 1119 d  150 1113 d  150 1107 d  152 1101 d
+  154 1099 d  156 1099 d  160 1101 d  162 1105 d  166 1115 d  168 1119 d
+  170 1121 d  156 1099 r  158 1101 d  160 1105 d  164 1115 d  166 1119 d
+  170 1121 d  174 1121 d  176 1119 d  178 1113 d  178 1107 d  176 1101 d
+  172 1099 d  178 1099 d  176 1101 d
+e
+%%Trailer
+EndPSPlot
+

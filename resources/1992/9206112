@@ -1,0 +1,2275 @@
+%Paper: hep-th/9206112
+%From: Gerard Watts <G.M.T.Watts@durham.ac.uk>
+%Date: Tue, 30 Jun 92 16:54:23 BST
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%								%
+% This a LaTeX file for						%
+%								%
+%			 1					%
+%			G  Affine Toda Field theory: 	        %
+%			 2					%
+%								%
+%	A Numerical Test of Exact S-Matrix Results              %
+%								%
+% 	 	R. A. Weston and G. M. T. Watts			%
+%								%
+% Run LaTeX *twice* on this file to get cross references right	%
+%								%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%								%
+%  	At the end of this file are the 7 figures, arranged	%
+%	into 4 postscript files, which we called		%
+%	fig1.ps figs2a2b.ps figs2c2d.ps figs2e2f.ps		%
+%	The paper wil LaTeX fine as it is but if you want	%
+%	the extra effort you can cut out these files and try 	%
+%	them out on your favourite postscript printer		%
+%	these postscript files are separated by long lines of	%
+%	               ` %%%% '					%
+%								%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentstyle[12pt]{article}
+\makeatletter
+
+% cft 	16 July 1990
+%
+%
+%	define macros for PL look alike
+%
+%----------
+% set the page dimensions
+%NAME: a4wide.sty
+\typeout{ setting page size to be wide}
+%\input a4wide.sty
+%NAME: a4wide.sty
+
+% "moretext" document style option.
+% Jean-Francois Lamy, July 86
+%
+% Redefines the margins so that they are more in line with
+% what we are used to see.
+%
+
+%\input a4.sty
+% A4size --- change pagelayout size for A4 paper
+% This layout is asymmetric to allow hole-punching/binding
+\textheight 235mm
+\textwidth 165mm
+\if@twoside
+ \oddsidemargin 0mm \evensidemargin -5mm \marginparwidth 15mm %
+Probably too small to be useful
+\else
+ \oddsidemargin 0mm
+ \evensidemargin 0mm
+ \marginparwidth 15mm
+\fi
+\topmargin -30pt
+
+
+\ifcase \@ptsize
+    % mods for 10 pt
+    \oddsidemargin  0.15 in     %   Left margin on odd-numbered pages.
+    \evensidemargin 0.35 in     %   Left margin on even-numbered pages.
+    \marginparwidth 1 in        %   Width of marginal notes.
+    \oddsidemargin 0.25 in      %   Note that \oddsidemargin = \evensidemargin
+    \evensidemargin 0.25 in
+    \marginparwidth 0.75 in
+    \textwidth 5.875 in % Width of text line.
+\or % mods for 11 pt
+    \oddsidemargin 0.1 in      %   Left margin on odd-numbered pages.
+    \evensidemargin 0.15 in    %   Left margin on even-numbered pages.
+    \marginparwidth 1 in       %   Width of marginal notes.
+    \oddsidemargin 0.125 in    %   Note that \oddsidemargin = \evensidemargin
+    \evensidemargin 0.125 in
+    \marginparwidth 0.75 in
+    \textwidth 6.125 in % Width of text line.
+\or % mods for 12 pt
+    \oddsidemargin -10 pt      %   Left margin on odd-numbered pages.
+    \evensidemargin 10 pt      %   Left margin on even-numbered pages.
+    \marginparwidth 1 in       %   Width of marginal notes.
+    \oddsidemargin 0 in      %   Note that \oddsidemargin = \evensidemargin
+    \evensidemargin 0 in
+    \marginparwidth 0.75 in
+    \textwidth 6.375 true in % Width of text line.
+\fi
+
+
+%---------------------
+%
+% Change sectioning commands
+%
+%\renewcommand{\theequation}{\thesection.\arabic{equation}}
+%\@addtoreset{equation}{section}
+\def\section{\@startsection {section}{1}{\z@}{-3.5ex plus -1ex minus
+ -.2ex}{2.3ex plus .2ex}{\bf\raggedright}}
+\def\subsection{\@startsection{subsection}{2}{\z@}{-3.25ex plus -1ex minus
+ -.2ex}{1.5ex plus .2ex}{\sc\raggedright}}
+%
+%
+% Set bibliography style
+%
+\def\bibliography#1{\if@filesw\immediate\write\@auxout
+  {\string\bibstyle{npb}}\fi
+  \if@filesw\immediate\write\@auxout{\string\bibdata{#1}}\fi
+  \@input{\jobname.bbl}}
+\def\thebibliography#1{\section{References\@mkboth
+ {REFERENCES}{REFERENCES}}\list
+ {[\arabic{enumi}]}{\settowidth\labelwidth{[#1]}\leftmargin\labelwidth
+ \advance\leftmargin\labelsep \itemsep=0pt
+ \usecounter{enumi}}
+ \def\newblock{\hskip .11em plus .33em minus .07em}
+ \sloppy\clubpenalty4000\widowpenalty4000
+ \sfcode`\.=1000\relax}
+%
+\def\topspace{\vphantom{\vrule height 3ex depth 0pt}}
+\def\bottomspace{\vphantom{\vrule height 0pt depth 2ex}}
+%
+%NAME: cite.sty
+%
+%              Replacement for \@citex
+%
+%     Allow, but strongly discourage, line breaks within a long
+%     series of citations.  Compress lists of successive numbers
+%     to one number range, e.g., 5,6,7,8,9 --> 5--9.  Compatible
+%     with versions of \@cite that use exponents.
+%              -- Donald Arseneau  1989
+%
+\def\@citex[#1]#2{%
+\if@filesw \immediate \write \@auxout {\string \citation {#2}}\fi
+\@tempcntb\m@ne \let\@h@ld\relax \def\@citea{}%
+\@cite{%
+  \@for \@citeb:=#2\do {%
+    \@ifundefined {b@\@citeb}%
+      {\@h@ld\@citea\@tempcntb\m@ne{\bf ?}%
+      \@warning {Citation `\@citeb ' on page \thepage \space undefined}}%
+%   else
+      {\@tempcnta\@tempcntb \advance\@tempcnta\@ne%
+      \@tempcntb\number\csname b@\@citeb \endcsname \relax%
+      \ifnum\@tempcnta=\@tempcntb %   Number follows previous--hold on to it
+        \ifx\@h@ld\relax%
+%         % first pair of successives
+          \edef \@h@ld{\@citea\csname b@\@citeb\endcsname}%
+        \else%
+%         % compressible list of successives
+          \edef\@h@ld{\ifmmode{-}\else--\fi\csname b@\@citeb\endcsname}%
+        \fi%
+      \else%   %  non-successor--dump what's held and do this one
+        \@h@ld\@citea\csname b@\@citeb \endcsname%
+        \let\@h@ld\relax%
+      \fi}%
+    \def\@citea{,\penalty\@highpenalty\,}%
+  }\@h@ld%
+}{#1}}
+%
+% for compatibility with ijmp style:
+\let\icite=\cite
+%
+%
+%    Example of alternate \@cite macro using exponents:
+%
+%\def\@cite#1#2{{$^{#1}$\if@tempswa , #2\fi }}
+%
+%
+% handle the options
+%
+\newif\ifabstract \abstractfalse
+\newif\ifconsolidatetitle \consolidatetitlefalse
+%
+\def\ds@consolidatetitle{\consolidatetitletrue}
+%
+%
+% Define macros for title page
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	define macros to store the text components of the title
+%
+\gdef\@publabel{\hfil}
+\gdef\@pubdate{\null}
+\gdef\@pubnumber{\null}
+\gdef\@author{\null}
+\gdef\@title{\null}
+\gdef\@abstract{\null}
+\long\def\pubdate#1{\gdef\@pubdate{#1}}
+\long\def\pubnumber#1{\gdef\@pubnumber{#1}}
+\long\def\publabel#1{\gdef\@publabel{#1}}
+\long\def\author#1{\gdef\@author{#1}}
+\long\def\title#1{\gdef\@title{#1}}
+\long\def\abstract#1{\abstracttrue\gdef\@abstract{#1}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	relax title macros
+%
+\def\titlerelax{
+\let\maketitle\relax
+\let\settitleparameters\relax
+\let\consolidatetitle\relax
+\let\inittitlepage\relax
+\let\finishtitlepage\relax
+\let\titlepagecontents\relax
+\let\multithanks\relax
+\let\titlebaselines\relax
+\let\@makepub\relax
+\let\@maketitle\relax
+\let\@makeauthor\relax
+\let\@makeabstract\relax
+\let\@maketitlenote\relax
+\let\thanks\relax
+\let\titlerelax\relax}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	relax title macros and clean up global definitions
+%
+\def\titleclean
+{\gdef\@titlenote{}
+\gdef\@abstract{}
+\gdef\@author{}
+\gdef\@title{}
+\gdef\@pubdate{}\gdef\@pubnumber{}\gdef\@publabel{}
+\gdef\@dpublabel{}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\def\maketitle{\par
+% \begingroup
+% \def\thefootnote{\fnsymbol{footnote}}
+% \def\@makefnmark{\hbox
+% to 0pt{$^{\@thefnmark}$\hss}}
+% \newpage
+% \global\@topnum\z@ \@maketitle \fi\thispagestyle{plain}\@thanks
+% \endgroup
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	define macros to make the pub
+%
+%		arrange \@publabel \@pubnumber across page
+%
+\def\@makepub{\vbox to \z@{\hbox to \textwidth{\hfill
+\@publabel \hfill
+\llap{\parbox[t]{0.25\textwidth}{\raggedleft\@pubnumber}}}%
+\vss}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	define macros to make the title
+%
+\def\@maketitle{\vskip 60pt \begin{center}
+ {\LARGE \@title \par}
+ \end{center}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	define macros to make the author
+%
+\def\@makeauthor{{%
+\def\and{\smallskip {\normalsize \rm and\smallskip }}
+\def\And{\medskip {\normalsize \rm and\\}\medskip}
+\long\def\address##1{{\def\and{\\and\\}\medskip
+				{\small \it \\##1\\}
+}}
+{\centering
+ \vskip 3em
+ \large \lineskip .75em
+ \@author}
+ \par}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	define macros to make the publication date
+%
+\def\@makedate{\vskip 1.5em
+ {\raggedright \small \noindent\@pubdate \par}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	define macros to make the abstract
+%
+\def\@makeabstract{\vskip 1.5em
+{\small
+\begin{center}
+{\bf ABSTRACT\vspace{-.5em}\vspace{0pt}}
+\end{center}
+\quotation \@abstract \endquotation}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\@consolidatetitle{{
+\thispagestyle{empty}
+\@makepub
+\setlength{\parskip}{0pt}
+\null
+\vskip 7mm
+\nointerlineskip
+\@maketitle
+\vskip 5ex
+\@makeauthor
+\vskip 4 ex
+\@makeabstract
+\vskip 5 ex
+}}
+
+
+\def\maketitle{\ifconsolidatetitle\@consolidatetitle
+\else
+	\titlepage
+	\let\footnotesize\small \setcounter{page}{0}
+	\@makepub
+	\vfil
+	\@maketitle
+	\@makeauthor
+	\vfil
+	\ifabstract\@makeabstract\fi
+	\@thanks
+	\vfil
+	\@makedate
+	\if@restonecol\twocolumn\fi \eject
+\fi
+	\titlerelax \titleclean
+	\setcounter{footnote}{0}
+}
+%-------------
+% Define additional symbols
+
+%% \catcode`\@=12
+%-----------
+% Additional mathematical enviroments
+% NAME: math.sty
+\newtheorem{theorem}{Theorem}
+\newtheorem{prop}{Proposition}
+\newtheorem{definition}{Definition}
+\def\square{\hbox{\vrule height2ex\kern-0.4pt
+\vbox to 2ex{\hrule width2ex\vfil\hrule width2ex}\kern-0.4pt\vrule height2ex}}
+\def\ltimes{\mathrel{\vrule height1ex}\joinrel\mathrel\times}
+\def\rtimes{\mathrel\times\joinrel\mathrel{\vrule height1ex}}
+\newenvironment{proof}{\begin{list}{}{}\item[{\bf Proof:}]}%
+{\unskip\nobreak\hfill$\Box$\end{list}}
+\def\cont{\nonumber\\*&&\mbox{}}
+\def\lefteqn#1{\hbox to 0pt{$\displaystyle #1$\hss}}
+\def\starteqn#1#2{\hbox to 0pt{${\displaystyle #1}\textstyle #2$\hss}
+\qquad\nonumber\\*&#2&}
+%
+%------------
+\typeout{macros input here}
+%\input allmacros.sty
+%---------
+% HGK's symbols
+% symb.sty
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%    This style file contains the symbols most common needed
+%
+\def\b{\beta}
+\def\cH{{\cal H}}
+\def\cL{{\cal L}}
+%-----------------------------------------------------------
+% GMTW's symbols
+%
+\def\blank#1{}
+\def\cdd{{\cdot}}
+\def\cev#1{\langle #1 \vert}
+\def\cevl{\cev \lambda}
+\def\comm#1#2{\bigl [ #1 , #2 \bigl ] }
+\def\cont{\nonumber\\*&&\mbox{}}
+\def\en{\end{equation}}
+\def\End{\mathop{\rm End}\nolimits}
+\def\enn{\end{eqnarray}}
+\def\eps{\epsilon}
+\def\eq{\begin{equation}}
+\def\eqq{\begin{eqnarray}}
+\def\ip#1#2{\langle #1,#2\rangle}
+\def\half#1{\frac{#1}{2}}
+\def\hf{\half 1}
+\def\la{\langle}
+\def\lag{{\cal L}}
+\def\rank{\rm rank\,}
+\def\vac{\vec 0}
+\def\vev#1{\left\langle#1\right\rangle}
+\def\WA{\mathop{\it WA}\nolimits}
+
+\def\eqq{\begin{eqnarray}}
+\def\enn{\end{eqnarray}}
+
+%NAME: amssbmbols.sty
+% Adapted by Charles Karney (Karney%PPC.MFENET@NMFECC.ARPA) 1986/07/28.
+% This style option loads up the AMS sbmbol fonts and associated sbmbol
+% definitions.  See the Nov 85 issue of TUGBoat for a listing of these
+% sbmbols.  Only \textfont, \scriptfont, and \scriptscriptfont sizes are
+% provided.  10pt, 11pt, 12pt styles are supported.
+
+% now takes msam, msbm; Gerard Watts
+
+%% This is the LATEX version of MSSBMB.TEX.
+%% Changes:
+%% (1) take out the \catcode`\@ business (LaTeX takes care of this)
+%% (2) Set font sizes according to \@ptsize
+
+%
+%               *****     MSSBMB.TeX    *****                  4 Nov 85
+%
+%       This file contains the definitions for the sbmbols in the two
+%       "extra sbmbols" fonts created at the American Math. Society.
+
+%% \catcode`\@=11
+
+%% \font\tenmsa=msam10
+%% \font\sevenmsa=msam7
+%% \font\fivemsa=msam5
+%% \font\tenmsb=msbm10
+%% \font\sevenmsb=msbm7
+%% \font\fivemsb=msbm5
+
+\ifcase\@ptsize
+ \font\tenmsa=msam10
+ \font\sevenmsa=msam7
+ \font\fivemsa=msam5
+ \font\tenmsb=msbm10
+ \font\sevenmsb=msbm7
+ \font\fivemsb=msbm5
+\or
+ \font\tenmsa=msam10 scaled \magstephalf
+ \font\sevenmsa=msam8
+ \font\fivemsa=msam6
+ \font\tenmsb=msbm10 scaled \magstephalf
+ \font\sevenmsb=msbm8
+ \font\fivemsb=msbm6
+\or
+ \font\tenmsa=msam10 scaled \magstep1
+ \font\sevenmsa=msam8
+ \font\fivemsa=msam6
+ \font\tenmsb=msbm10 scaled \magstep1
+ \font\sevenmsb=msbm8
+ \font\fivemsb=msbm6
+\fi
+
+\newfam\msafam
+\newfam\msbfam
+\textfont\msafam=\tenmsa  \scriptfont\msafam=\sevenmsa
+  \scriptscriptfont\msafam=\fivemsa
+\textfont\msbfam=\tenmsb  \scriptfont\msbfam=\sevenmsb
+  \scriptscriptfont\msbfam=\fivemsb
+
+\def\hexnumber@#1{\ifnum#1<10 \number#1\else
+ \ifnum#1=10 A\else\ifnum#1=11 B\else\ifnum#1=12 C\else
+ \ifnum#1=13 D\else\ifnum#1=14 E\else\ifnum#1=15 F\fi\fi\fi\fi\fi\fi\fi}
+
+\def\msa@{\hexnumber@\msafam}
+\def\msb@{\hexnumber@\msbfam}
+\typeout{If you have trouble with the BlackBoardbold characters,
+change BBb to null}
+% Use the next 4 lines with AMS-TeX:
+%\def\Bbb{\relaxnext@\ifmmode\let\next\Bbb@\else
+% \def\next{\Err@{Use \string\Bbb\space only in math mode}}\fi\next}
+%\def\Bbb@#1{{\Bbb@@{#1}}}
+%\def\Bbb@@#1{\noaccents@\fam\msbfam#1}
+% Use the next 4 lines if NOT using AMS-TeX:
+\def\Bbb{\ifmmode\let\next\Bbb@\else
+ \def\next{\errmessage{Use \string\Bbb\space only in math mode}}\fi\next}
+\def\Bbb@#1{{\Bbb@@{#1}}}
+\def\Bbb@@#1{\fam\msbfam#1}
+
+%% \catcode`\@=12
+
+
+
+\makeatother
+
+\begin{document}
+
+
+
+%\input v0.tex			%title page
+%\input v0.tex
+\pubnumber{DTP 92--23 \\DAMTP 92--41}
+%\pubnumber{ DAMTP 92--41}
+\pubdate{20 June 1992}
+\title{$G_2^{(1)}$ Affine Toda Field Theory:\\ A Numerical Test of Exact
+S--Matrix Results}
+\author{G.~M.~T.~WATTS$^{1,2}$
+and
+ROBERT~A.~WESTON$^{3,4}$
+\address{
+Department of Mathematical Sciences, \\
+University of Durham, South Road,
+Durham, DH1 3LE, U.K.}
+}
+
+\footnotetext[2]{
+Email: {\tt G.M.T.Watts@UK.AC.DURHAM}
+}
+
+\footnotetext[2]{Address from 1st July: DAMTP, University
+of Cambridge, Silver Street, Cambridge, U.K.}
+
+\footnotetext[3]{
+Email: {\tt R.A.Weston@UK.AC.DURHAM}
+}
+
+\footnotetext[4]{Address from 1st Oct:
+Centre de Recherches Math\'ematiques, Universit\'e de Montr\'eal,
+C.P.~6128--A, Montr\'eal, Qu\'ebec, H3C 3J7, Canada.}
+
+
+\abstract{
+We present the results of a Monte--Carlo simulation of the $G_2^{(1)}$
+Affine Toda field theory action in two dimensions. We measured the
+ratio of the masses of the two fundamental particles as a function of
+the coupling constant. Our results strongly support the conjectured
+duality with the $D_4^{(3)}$ theory, and are consistent with the
+mass formula of Delius et al.}
+
+% We find that
+%this ratio is given to good accuracy by the formula of Grisaru et al.
+%and in particular exhibits the required duality with the $D_4^{(3)}$
+%at large coupling constant.
+%}
+
+\maketitle
+
+
+
+%\input v1.tex			%introduction
+ \def\reff#1{(\ref{#1})}
+
+\section{Introduction \label{secv1}}
+
+An affine Toda field theory is a theory of scalar fields in two
+dimensions with exponential interactions. There is an affine Toda field
+theory associated with each Kac--Moody algebra, with the interactions
+given by the simple roots of the algebra. If we denote the fields by
+$\phi^i$, and the simple roots of the Kac--Moody algebra by
+$\alpha_a^i$, then the action takes the form
+\eq
+S = \int {\rm d}x^2 \left\{ \hf \partial^\mu\phi\cdd\partial_\mu\phi +
+\frac{m^2}{\b^2} \sum_{a} n_a \exp( \beta\alpha_a\cdd\phi )
+\right\}
+\;,
+\label{eq.lag}
+\en
+where $\b$ is the coupling constant, $m$ is the mass scale and $n_a$
+are numbers chosen so that $\phi=0$ is the minimum of the potential.
+What makes the Toda theories special is that
+classically they are integrable with conserved quantities whose
+spins are given by the exponents of the affine algebra. The presence
+of higher spin conserved quantities in the quantum theory implies
+that the scattering preserves individual particle momenta, and that
+the S--matrix factorises on the two particle scatterings.
+%The Kac--Moody algebras maybe be classified in a similar manner to
+%finite Lie algebras by Dynkin diagrams which encode the inner products
+%of the simple roots.
+For details of Kac--Moody algebras and their classification see
+%The Kac--Moody algebras are classified in
+e.g. \cite{Kac1}. Each algebra
+is denoted $G_n^{(r)}$ where $G_n$ is a finite dimensional Lie
+algebra and $r$ is the twist, which can be $1,2$ or $3$.
+$G_n^{(r)}$ has $n+1$ simple roots which span $\Bbb R^n$.
+To each simple root $\alpha$ of a Kac--Moody algebra we can associate
+a dual root,
+$\alpha^\vee$, given by $\alpha^\vee = 2 \alpha / |\alpha|^2$. These
+dual roots are also the simple roots of a Kac--Moody algebra.
+If the algebra and its dual are isomorphic, then we call that algebra
+(Langlands) self--dual. The self dual algebras are
+$A_n^{(1)},D_n^{(1)},E_n^{(1)}, A_{2n}^{(2)}$, and the non-self dual
+algebras come in dual pairs $( B_n^{(1)},A_{2n-1}^{(2)} ),
+(C_n^{(1)},D_{2n-1}^{(2)} ), (G_2^{(1)},D_4^{(3)} ), (F_4^{(1)},
+E_6^{(2)}) $.
+
+Although all
+the divergences can be removed from a two dimensional scalar theory by
+normal ordering, at first
+sight the action \reff{eq.lag} appears to present difficulties in that
+there will be an infinite set of counterterms generated and that these
+will not necessarily preserve the form of the action which depends on
+only two constants $m,\b$. However, it can be shown that normal
+ordering only induces a multiplicative change in the exponentials.
+Thus,  for any theory of $n$ fields with $n+1$
+exponential interactions all regulation schemes are
+equivalent up to
+a constant shift in the scalar fields
+and a renormalisation of $m$,
+ provided that any $n$ of the $n+1$ directions
+$\alpha_a$ are linearly independent
+\cite{Cole1,DVeg1}. The Affine Toda theories are therefore
+renormalisable and it makes sense to discuss the $\b$--dependence of
+physical observables since this coupling constant is unaltered by a
+change in the regulation scheme.
+
+
+Since the mass scale $m$ depends on the regulation scheme, it is
+only the ratios which are observable. It is a remarkable fact that to
+first order in perturbation theory the mass ratios for the self--dual
+theories are independent of the coupling constant and keep their
+classical values \cite{BCDS1,BCDS4}. This feature enables one to write
+down simple S--matrices which have their physical  poles fixed at the
+fusion angles given by the classical masses and allowed tree-level  three
+point couplings. The S-matrix coupling dependence
+is then added in so as to agree with
+first order perturbation theory \cite{BCDS1,BCDS4,CMus1}. However
+this procedure does not work for
+the non-self dual
+theories. There are  two reasons. Firstly, the bootstrap constraint on
+the S--matrices does
+not close on the classical particles; and secondly, the mass ratios
+are renormalised by quantum effects even
+in first order perturbation theory.
+However, by performing a careful analysis of the first order
+perturbation theory and requiring  that the two particle S--matrices
+obey certain relations (crossing-symmetric, unitarity and a bootstrap
+hypothesis),
+Delius et al.~were able to postulate the S--matrices of
+these theories \cite{DGZa1,DGZa2}. One of the new features of these
+S-matrices as compared to the self-dual theories is that  the
+position of the poles is now $\beta$ dependent. These S-matrices thus
+provide predictions for the mass ratios of the Toda theories in
+the large $\b$, non-perturbative regime. The mass
+ratios which they found exhibit a relation
+between the dual theories: the mass ratios in one theory for
+large coupling constant are the same as those in the dual theory for
+small coupling constant. Furthermore the S--matrices for two dual
+theories may both be expressed as the same function when written in
+terms of a parameter $B$ which encodes the coupling constant
+behaviour, and the only difference between the two theories is the
+dependence of this function $B$ on the coupling constant.
+Further evidence for this duality can be found by looking for the
+quantum conserved currents \cite{FFre4,DGZa3,KWat3}, which also
+exhibit this property; the conserved currents for small $\b$ for one
+theory have the same form as the conserved currents for large $\b$ of
+the dual theory \cite{KWat3}.
+
+
+In this paper we present the results of a Monte-Carlo simulation
+of the $G^{(1)}_2$ Affine Toda filed theory.
+The convention used for the $G^{(1)}_2$ roots was,
+\eq
+\alpha_1 = (\sqrt{2},0)\,,\;
+\alpha_2 = (-1/\sqrt{2},-\sqrt{3/2})\,,\;
+\alpha_3 = (-1/\sqrt{2},1/\sqrt{6}) \,.
+\en
+The corresponding constants $n_a$ are $n_1=2,n_2=1,n_3=3$. The
+S--matrix prediction of Delius at al. \cite{DGZa2,Deli1} for the ratio of
+the masses of two fundamental particles of this theory is
+\eq
+\frac{m_2 }{ m_1 } =
+\frac{ \sin( 2\pi / H )}{ \sin(\pi / H) }
+\,,
+\label{eq.func}
+\en
+where
+\eq
+H = 6 +  (\b^2 / 2\pi) / ( 1 + \b^2/12\pi )
+\,.
+\label{eq.H}
+\en
+This agrees with perturbation theory to one loop. The $G^{(1)}_2$
+theory is dual to the $D_4^{(3)}$ theory
+ ($H$ flows from 6 to 12 with increasing $\beta$ -- the twist times the
+Coxeter numbers of $G_2^{(1)}$ and $D_4^{(3)}$ respectively).
+The prediction is that for small $\b$ the mass ratio for the
+$G_2^{(1)}$ theory is approximately $\sqrt{3}$, and for large $\b$ it
+approaches the classical value of the $D_4^{(3)}$ theory, which is
+$\sqrt{ (  \sqrt{3} + 1) / (\sqrt{3} - 1) }$.
+We have measured
+the flow of the mass ratios as a function of $\beta$. Our observations
+strongly support the duality conjecture and are consistent with
+the functional form of this flow  \reff{eq.func}.
+
+The rest of the letter is laid out as follows.
+In sect.
+\ref{secv2} we present the simulation details, and in sect. \ref{secv3}
+we summarise our results and compare them with prediction. Finally we
+present our conclusions.
+
+
+
+%\input v2.tex			%method
+\section{Simulation Details \label{secv2} }
+
+
+A Metropolis simulation was carried out on a periodic square lattice
+(most runs using a $64\times 40$ lattice). The discrete Euclidean
+action used was
+\eq
+S= {1\over 2}  \sum_{<nm>} (\phi_n -\phi_m) \cdd (\phi_n
+-\phi_m) + \frac{m^2}{\beta^2} \sum_{n,a} n_a
+\exp(\beta\alpha_a \cdd \phi_n )\;,
+\label{daction} \en
+where  $n$ labels a site and the first sum is over nearest-neighbour
+sites. Measurements of the zero spatial momentum components of the
+three correlation functions
+$\vev{\phi^1(x,t) \phi^1(0,0)}$,
+$\vev{\phi^1 (x,t) \phi^2(0,0)}$,
+$\vev{\phi^2(x,t) \phi^2(0,0)}$ and of the two field
+averages $\vev{\phi^1(0,0)}$ and $\vev{\phi^2(0,0)}$ were made.
+Labelling the sites by their spatial and time coordinates the
+correlation functions were calculated  in the following way (the short
+lattice direction is characterised as the spatial direction and the
+long length as the time direction):
+\eq
+\vev{\phi^i (n_t) \phi^j (0)} = {1 \over L} \sum_{m=1}^L ({1\over N}
+\sum_{n=1}^N \phi_{n,m}^i )({1\over N} \sum_{n'=1}^N
+\phi_{n',m+n_t}^j ) \en
+where $N$ and $L$ are the lattice lengths in the spatial and time
+directions respectively.
+The  matrix of correlation functions was fitted by the function
+\eqq
+\pmatrix{
+\vev{\phi^1 (n_t) \phi^1 (0)} & \vev{\phi^1 (n_t) \phi^2 (0)} \cr
+\vev{\phi^1 (n_t) \phi^2 (0)} & \vev{\phi^2 (n_t) \phi^2 (0)}\cr}
+=&&\pmatrix{ S_1 S_1 & S_1 S_2 \cr S_2 S_1 & S_2 S_2}
+\nonumber\\
++  R(\theta_1) \pmatrix{ a e^{-m_1 n_t}  & 0 \cr 0&0\cr }
+R^{(-1)} (\theta_1)
+&+&
+R(\theta_2) \pmatrix{  0 & 0 \cr 0& b e^{-m_2 n_t} \cr }
+R^{(-1)} (\theta_2)
+\;, \label{fit}
+\enn
+where $R(\theta)$ is the rotation matrix
+\eq R(\theta) = \pmatrix{
+\cos\theta& \sin\theta\cr   -\sin\theta &\cos\theta }
+\;,
+\en
+$m_1$ and $m_2$ the two masses, $a$ and $b$ constants, and  $S_1$ and
+$S_2$  correspond to the vacuum expectation values of the fields.
+Since we imposed periodic boundary conditions on our lattice, we
+should be fitting to a more complicated function that \reff{fit}, with
+exponentials replaced by coshes.
+In each case, the fitted parameters were
+insensitive to this because the statistical errors in the correlation
+functions grew with separation.
+
+\blank{
+Normally one defines an effective mass for a correlation function
+$f(n_t)= \vev{\phi(n_t)\phi(0)}$ as $m_{eff}(n_t) = \log f(n_t+1) -
+\log f(n_t)$.
+If the correlation function $f(n_t)$ is in fact an exponential then this
+effective mass will be constant over the range of $n_t$.
+For a system with correlation functions given by \reff{fit}, it is not
+possible  to define effective masses
+$m_{eff}^1,m_{eff}^2$ from the matrix of correlation functions
+which would be constant with $n_t$ and
+equal to $m_1,m_2$,  unless $\theta_1 = \theta_2$
+% if the correlation functions did
+%indeed take the form \reff{fit}.
+}
+On fitting to various separations we found that the differences
+between the fitted values of $\theta_1,\theta_2$ were of the order of
+the statistical errors ($<1$\%). We then chose to fit the correlation
+functions with \reff{fit} on separations for which the effective
+masses (derived assuming $\theta_1=\theta_2$) were approximately
+constant. In practice this meant that fits to \reff{fit} were carried
+out over separations $n_t$ from 0 out to some larger distance which
+varied between 4 and 15.
+
+
+
+The eight parameter fit of \reff{fit}  was carried out with a standard
+%N-L
+chi-squared minimisation routine. The chi-squared function involved a
+sum over contributions from  the three correlation functions  at
+each of the separations being
+fitted  plus the two field averages. The errors in the denominator of
+the the chi-squared function  were obtained by rebinning the data in
+order to allow for computer time autocorrelations (this rebinning
+method involves averaging the data into successively fewer bins until
+the variance of a  particular parameter over the bins converges
+\cite{rebin}). A bootstrap routine was carried out over the binned
+data in order to obtain the error estimates on the fitted parameters.
+If there were $N_{bin}$ bins of data, then the bootstrap method
+involved choosing $N_{bin}$ new bins randomly from these bins (with
+repetition when it occurred), fitting our function over this new data
+set, and then repeating over an ensemble of such data sets. The
+variances  of the fitted parameters over this ensemble gave the quoted
+errors.
+
+The simulation was carried out by choosing a particular  $\beta$ value,
+and then decreasing $m$ in \reff{daction} until the measured mass ratio
+converged to within statistical errors (this is the scaling requirement
+that must be met in order that a lattice theory can give information
+about the continuum). Finite-size effects were then examined for those
+values of $\beta$ for which scaling was observed by
+varying the spatial lattice size.
+
+
+
+
+
+
+
+
+
+
+
+
+%\input v3.tex			% results
+
+\section{Results \label{secv3}}
+
+
+The results are collected in figures 1 and 2a -- 2f.
+10000 equilibration iterations and 809200 further iterations
+were carried out to obtain each mass ratio measurement.
+ Each such run on the $64 \times
+40$ lattice required approximately
+120 hours of CPU time on a Sparc IPC machine.
+Figure (1), shows measurements of the mass ratio at two different
+masses in equation \reff{eq.lag}, at a selection of $\beta$ values
+on the $64 \times 40 $ lattice.
+The solid line is the prediction \reff{eq.H} of Delius et al
+\cite{DGZa2}.
+Figures 2a -- 2f
+show all  runs for each of the $\beta$ values.
+%(the prediction is now shown by the horizontal line).
+These latter plots  show the masses plotted against the longer of the
+two correlation lengths measured.
+%(longer) correlation length.
+In addition, the $\beta=50$ and $\beta=20$ plots (figures 2a and 2b)
+show the results of runs carried out
+on $64 \times 60 $ and $64 \times 30$ lattices.
+
+In order that scaling is achieved, the points on figures 2a -- 2f
+must reach a plateau as the correlation length increases.
+The absence of finite-size effects must then be demonstrated
+for points that lie on this plateau.
+
+ All the points for $\beta=50$ and $\beta=20$ on the $64 \times 40$
+lattice  vary by less than one percent and lie well within each
+other's (one sigma) error bars. Furthermore, the results on the
+lattices with smaller and larger spatial dimensions agree to the same
+accuracy. Thus these two criteria are taken as having been met.
+%show that finite size effects are not present.
+
+For the other $\beta$ values, the situation is less clear cut. As
+$\beta$ was decreased it became necessary to go to larger correlation
+length to achieve finite size scaling and the error bars increased in
+size due to critical slowing down. Nevertheless for $\beta=5$ and
+$\beta=2$ scaling seems to have been achieved. However finite-size
+effects may be important at these longer correlation lengths
+(finite-size effects were examined in detail for correlation lengths
+of approximately 1.5 at $\beta =20$ and 50, compared  to the
+correlation lengths of 3-4 relevant here). For $\beta=1$ and
+$\beta=0.01$, the perturbative regime, scaling has not been adequately
+established (to do this would require larger lattices and longer
+runs).
+
+On figure 1 we show a selection of points from the simulations on a
+$64 \times 40$ lattice as follows: the shortest two correlation length
+points from each of figures 2a and 2b - which lie on the plateaus and
+have smaller error bars than the longer correlation length points; the
+3 longer correlation points from figure 2c - scaling has not been
+reached for the shortest correlation length point; all the points from
+figures 2d to 2f - for which  scaling has not been adequately
+established.
+
+
+ From figure 1, the  $\beta=20$ and $\beta=50$ data strongly  support
+the duality conjecture (that the mass ration flows to the 1.93 value
+shown corresponding to the mass ratio for $D_4^{(3)}$) in the
+$\beta\to0$ limit. As discussed above this is the data for which
+systematic errors associated with scaling and finite-size effects are
+most under control. The rest of the data  is consistent with the
+prediction of Delius et al. over the complete $\beta$ value range.
+
+
+
+
+
+%\begin{figure}[hbt]
+%\vspace{4in}
+%\special{dvitops: import metatmp.eps \the\textwidth 4in}
+%\caption{Plot of mass ratio vs. coupling constant}
+%\end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%\input v6.tex			% conclusions and acknowledgements
+
+
+%\input v6.tex
+\section{Conclusions}
+
+It is clear that our results are in agreement with the predictions of
+duality; that is that the  large $\b$ limit of the mass ratio in the
+$G^{(1)}_2$ affine Toda is  the same as small $\beta$ limit of the
+mass ratio in  the $D_4^{(3)}$ theory.  In addition  our results for
+the intermediate $\b$ range are
+%consistent with
+not significantly different from the ratio predicted by Delius et al.
+\cite{DGZa2}.
+% at a two-$\sigma$ level.
+
+Monte-Carlo simulations might also provide a non-perturbative check on
+other theoretical predictions. For example
+there is some dispute as to the meaning of the anomalous threshold
+singularities in the S--matrices of Delius et al. A careful
+calculation of the one-loop corrections and of the conservation of the
+charges by Delius et al. showed that some of the poles which one would
+like to assign to fundamental particles are displaced by loop effects.
+It is not clear whether this signals new particles or not.
+It should in
+principle be able to test whether these do indeed correspond to
+physical states by measuring higher-order correlation functions. In
+addition it should prove possible to check the proposed form factor
+formulae from similar measurements.
+Perhaps more immediately, one can investigate whether the observed
+duality is present in the $D_4^{(3)}$ theory, and in the other non
+self-dual rank two Affine Toda theories. We hope to be able to report
+on these questions in the future.
+
+\section{Acknowledgements}
+
+We would like to thank E.~Corrigan for many helpful discussions,
+M.~Grisaru for explaining his results, and P.~Craig, A.~Irving and
+C.~Michael for advice on the error analysis. RAW thanks the Department
+of Applied Mathematics and Theoretical Physics in Cambridge for
+their kind hospitality during the period in which the final stages
+of this work were completed.
+GMTW and RAW acknowledge the support of an SERC research
+assistantship and SERC postdoctoral research fellowship respectively.
+%\bibliography{bib1,bib2}
+
+\begin{thebibliography}{10}
+
+\bibitem{Kac1}
+V.~Kac,
+\newblock Infinite dimensional Lie algebras,
+\newblock Cambridge University Press, 1985.
+
+\bibitem{Cole1}
+S.~Coleman,
+\newblock Phys. Rev. Lett. D11 (1975) 2088.
+
+\bibitem{DVeg1}
+C.~Destri and H.~J. de~Vega,
+\newblock Nucl. Phys. B358 (1991) 291.
+
+\bibitem{BCDS1}
+H.~W. Braden, E.~F. Corrigan, P.~E. Dorey and R.~Sasaki,
+\newblock Phys. Lett. B227 (1989) 411.
+
+\bibitem{BCDS4}
+H.~W. Braden, E.~F. Corrigan, P.~E. Dorey and R.~Sasaki,
+\newblock Nucl. Phys. B338 (1990) 689 .
+
+\bibitem{CMus1}
+P.~Christe and G.~Mussardo,
+\newblock Nucl. Phys. B330 (1990) 465.
+
+\bibitem{DGZa1}
+G.~W. Delius, M.~T. Grisaru and D.~Zanon,
+\newblock Phys. Lett. B277 (1992) 414 .
+
+\bibitem{DGZa2}
+G.~W. Delius, M.~T. Grisaru and D.~Zanon{\it,
+\newblock Exact S--Matrices for the non-simply-laced affine Toda theories},
+\newblock CERN Preprint CERN-TH 6337/91 (1991).
+
+\bibitem{FFre4}
+B.~L. Feigin and E.~V. Frenkel{\it,
+\newblock Free Field resolutions and affine Toda theory},
+\newblock Research Institute in Mathematical Sciences, Kyoto, Preprint
+  RIMS--827 (1991).
+
+\bibitem{DGZa3}
+G.~W. Delius, M.~T. Grisaru and D.~Zanon{\it,
+\newblock Quantum conserved currents in affine Toda theories},
+\newblock CERN Preprint CERN-TH 6336/91 (1991).
+
+\bibitem{KWat3}
+H.~G. Kausch and G.~M.~T. Watts{\it,
+\newblock Duality in Quantum Toda theory and W Algebras},
+\newblock Durham University Preprint DTP-92-01 (1992).
+
+\bibitem{Deli1}
+G.~W.~Delius, private communication.
+
+\bibitem{rebin}
+R.~A. Weston,
+\newblock Phys. Lett. B219 (1989) 315 .
+
+\end{thebibliography}
+
+\newpage
+%\input table2
+
+\makeatletter
+\centering{ Table of collected data}
+$$
+\begin{array}{|c|c|c|c|c|c|c|}
+\hline
+\beta & L & m & m_2/m_1 & \delta(m_2/m_1) & m_1 & m_2 \\
+\hline
+  & 64 \times 60 &   		&1.9208 & 0.0073    & 0.7584 & 1.4568 \\
+\@cline[2-2]\@cline[4-7]
+  &64 \times 40 &10^{-9}	&1.9302 & 0.0082    & 0.7599 & 1.4669 \\
+\@cline[2-2]\@cline[4-7]
+50 &64 \times 30 &  		&1.9271 & 0.0077    & 0.7563 & 1.4575 \\
+\@cline[2-2]\@cline[3-7]
+  &    & 10^{-10}	&1.9317 & 0.0174    & 0.6705 & 1.2952 \\
+\@cline[3-7]
+  &64 \times 40 & 10^{-15}	&1.9344 & 0.0170    & 0.3629 & 0.7019 \\
+\@cline[3-7]
+  &    & 10^{-25}	&1.9456 & 0.0155    & 0.3227 & 0.6279 \\
+\hline
+   & 64 \times 60 &    		&1.9235 & 0.0193    & 0.5873 & 1.1296 \\
+\@cline[2-2]\@cline[4-7]
+   &64 \times 40 & 10^{-4}	&1.9292 & 0.0108    & 0.5847 & 0.1128 \\
+\@cline[2-2]\@cline[4-7]
+20 &64 \times 30 &    		&1.9234 & 0.0146    & 0.5846 & 1.1244 \\
+\@cline[2-2]\@cline[3-7]
+   &    & 10^{-5}   	&1.9330 & 0.0108    & 0.4334 & 0.8377 \\
+\@cline[3-7]
+   &64 \times 40 & 10^{-6}	&1.9216 & 0.0175    & 0.3217 & 0.8637 \\
+\@cline[3-7]
+   &    & 10^{-7}	&1.9276 & 0.0224    & 0.2393 & 0.4613 \\
+\hline
+  &    & 0.1  & 1.8524 & 0.0119    & 0.5156 & 0.8437 \\
+\@cline[3-7]
+5 &    & 0.07 & 1.8821 & 0.0116    & 0.4294 & 0.8082 \\
+\@cline[3-7]
+  &64 \times 40 & 0.05 & 1.8832 & 0.0155    & 0.3685 & 0.6940 \\
+\@cline[3-7]
+  &    & 0.03 & 1.8921 & 0.0180    & 0.2891 & 0.5471 \\
+\hline
+2 &    & 0.1  & 1.8089 & 0.03      & 0.2203 & 0.3986 \\
+\@cline[3-7]
+ &64 \times 40 & 0.14 & 1.8029 & 0.0172    & 0.2872 & 0.5179 \\
+\hline
+  &    & 0.35  & 1.7083 & 0.03      & 0.5255 & 0.8975 \\
+\@cline[3-7]
+  &    & 0.3   & 1.7151 & 0.0105    & 0.4560 & 0.7822 \\
+\@cline[3-7]
+1 &64 \times 40 & 0.18  & 1.7365 & 0.0148    & 0.2828 & 0.4911 \\
+\@cline[3-7]
+  &    & 0.14  & 1.7424 & 0.0294    & 0.2268 & 0.3952 \\
+\@cline[3-7]
+  &    & 0.12  & 1.7832 & 0.0235    & 0.1889 & 0.3369 \\
+\hline
+ &    & 0.4   & 1.6898 & 0.017   & 0.5598 & 0.9459 \\
+\@cline[3-7]
+0.01 &64 \times 40 & 0.25  & 1.7035 & 0.02    & 0.3564 & 0.6071 \\
+\@cline[3-7]
+ &    & 0.2   & 1.7302 & 0.0260  & 0.2826 & 0.4889 \\
+\@cline[3-7]
+ &    & 0.15  & 1.7061 & 0.0257  & 0.2149 & 0.3667 \\
+\hline
+\end{array}
+$$
+
+%\input cal
+\end{document}
+
+\bye
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%	fig1.ps
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%!PS-Adobe-2.0
+%%Creator: dma0gmw
+%%Title: MATLAB graph
+%%CreationDate: 06/20/92  12:31:36
+%%Pages: 001
+%%BoundingBox: 080 407 532 756
+%%DocumentFonts: Times-Roman
+%%DocumentNeededFonts: Times-Roman
+%%EndComments
+
+% MathWorks dictionary
+/mathworks 50 dict begin
+
+% definition operators
+/bdef {bind def} bind def
+/xdef {exch def} bdef
+
+% page state control
+/pgsv () def
+/bpage {/pgsv save def} bdef
+/epage {pgsv restore} bdef
+/bplot {gsave} bdef
+/eplot {grestore} bdef
+
+% bounding box in default coordinates
+/dx 0 def
+/dy 0 def
+/sides {/dx urx llx sub def /dy ury lly sub def} bdef
+/llx 0 def
+/lly 0 def
+/urx 0 def
+/ury 0 def
+/bbox {/ury xdef /urx xdef /lly xdef /llx xdef sides} bdef
+
+% orientation switch
+/por true def
+/portrait {/por true def} bdef
+/landscape {/por false def} bdef
+
+% coordinate system mappings
+/px 8.5 72 mul def
+/py 11.0 72 mul def
+/port {dx py div dy px div scale} bdef
+/land {-90.0 rotate dy neg 0 translate dy py div dx px div scale} bdef
+/csm {llx lly translate por {port} {land} ifelse} bdef
+
+% line types: solid, dotted, dashed, dotdash
+/SO { []        0 setdash } bdef
+/DO { [0 4]     0 setdash } bdef
+/DA { [4]       0 setdash } bdef
+/DD { [0 4 3 4] 0 setdash } bdef
+
+% macros for moveto and polyline
+/M {moveto}  bdef
+/L {{lineto} repeat stroke} bdef
+
+% font control
+/font_spec () def
+/lfont currentfont def
+/sfont currentfont def
+/selfont {/font_spec xdef} bdef
+/savefont {font_spec findfont exch scalefont def} bdef
+/LF {lfont setfont} bdef
+/SF {sfont setfont} bdef
+
+/lufont currentfont def
+/sufont currentfont def
+/LUF {lufont setfont} bdef
+/SUF {sufont setfont} bdef
+
+% text display
+/sh {show} bdef
+/csh {dup stringwidth pop 2 div neg 0 rmoveto show} bdef
+/rsh {dup stringwidth pop neg 0 rmoveto show} bdef
+/r90sh {gsave currentpoint translate 90 rotate csh grestore} bdef
+
+currentdict end def %dictionary
+%%EndProlog
+
+%%BeginSetup
+mathworks begin
+
+% fonts for text, standard numbers and exponents
+%%IncludeFont: Times-Roman
+/Times-Roman selfont
+/lfont 20 savefont
+/sfont 14 savefont
+
+/Symbol selfont
+/lufont 20 savefont
+/sufont 14 savefont
+
+%line width, line cap, and joint spec
+.5 setlinewidth 1 setlinecap 1 setlinejoin
+
+end
+%%EndSetup
+
+%%Page: 1 1
+%%BeginPageSetup
+%%PageBoundingBox: 080 407 532 756
+mathworks begin
+bpage
+%%EndPageSetup
+
+%%BeginObject: graph 1
+bplot
+80 407 532 756 bbox portrait csm
+
+SO
+ 78.09  77.33 757.00  77.33 757.00 570.67  78.09 570.67  78.09  77.33 M 4 L
+LF
+ 78.09  87.89  84.83  87.89 M 1 L
+750.27  87.89 757.00  87.89 M 1 L
+ 73.09  81.89 M (1.65) rsh
+ 78.09 161.24  84.83 161.24 M 1 L
+750.27 161.24 757.00 161.24 M 1 L
+ 73.09 155.24 M (1.7) rsh
+ 78.09 234.59  84.83 234.59 M 1 L
+750.27 234.59 757.00 234.59 M 1 L
+ 73.09 228.59 M (1.75) rsh
+ 78.09 307.94  84.83 307.94 M 1 L
+750.27 307.94 757.00 307.94 M 1 L
+ 73.09 301.94 M (1.8) rsh
+ 78.09 381.28  84.83 381.28 M 1 L
+750.27 381.28 757.00 381.28 M 1 L
+ 73.09 375.28 M (1.85) rsh
+ 78.09 454.63  84.83 454.63 M 1 L
+750.27 454.63 757.00 454.63 M 1 L
+ 73.09 448.63 M (1.9) rsh
+ 78.09 527.98  84.83 527.98 M 1 L
+750.27 527.98 757.00 527.98 M 1 L
+ 73.09 521.98 M (1.95) rsh
+151.34  77.33 151.34  82.53 M 1 L
+151.34 565.47 151.34 570.67 M 1 L
+151.34  55.33 M (-4) csh
+224.20  77.33 224.20  82.53 M 1 L
+224.20 565.47 224.20 570.67 M 1 L
+224.20  55.33 M (-3) csh
+297.07  77.33 297.07  82.53 M 1 L
+297.07 565.47 297.07 570.67 M 1 L
+297.07  55.33 M (-2) csh
+369.93  77.33 369.93  82.53 M 1 L
+369.93 565.47 369.93 570.67 M 1 L
+369.93  55.33 M (-1) csh
+442.80  77.33 442.80  82.53 M 1 L
+442.80 565.47 442.80 570.67 M 1 L
+442.80  55.33 M (0) csh
+515.67  77.33 515.67  82.53 M 1 L
+515.67 565.47 515.67 570.67 M 1 L
+515.67  55.33 M (1) csh
+588.53  77.33 588.53  82.53 M 1 L
+588.53 565.47 588.53 570.67 M 1 L
+588.53  55.33 M (2) csh
+661.40  77.33 661.40  82.53 M 1 L
+661.40 565.47 661.40 570.67 M 1 L
+661.40  55.33 M (3) csh
+734.26  77.33 734.26  82.53 M 1 L
+734.26 565.47 734.26 570.67 M 1 L
+734.26  55.33 M (4) csh
+DO
+ 78.09 208.26 757.00 208.26 M 1 L
+ 78.09 499.86 757.00 499.86 M 1 L
+SO
+ 81.49 208.26  84.88 208.26  88.28 208.26  91.67 208.26  95.07 208.26
+ 98.46 208.26 101.86 208.26 105.25 208.26 108.64 208.26 112.04 208.26
+115.43 208.26 118.83 208.26 122.22 208.26 125.62 208.26 129.01 208.26
+132.41 208.26 135.80 208.26 139.20 208.26 142.59 208.26 145.98 208.26
+149.38 208.26 152.77 208.27 156.17 208.27 159.56 208.27 162.96 208.27
+166.35 208.27 169.75 208.27 173.14 208.27 176.54 208.27 179.93 208.27
+183.32 208.27 186.72 208.28 190.11 208.28 193.51 208.28 196.90 208.28
+200.30 208.28 203.69 208.29 207.09 208.29 210.48 208.29 213.87 208.30
+217.27 208.30 220.66 208.30 224.06 208.31 227.45 208.31 230.85 208.32
+234.24 208.32 237.64 208.33 241.03 208.34 244.43 208.35 247.82 208.35
+251.21 208.36 254.61 208.37 258.00 208.39 261.40 208.40 264.79 208.41
+268.19 208.43 271.58 208.44 274.98 208.46 278.37 208.48 281.77 208.50
+285.16 208.53 288.55 208.55 291.95 208.58 295.34 208.61 298.74 208.65
+302.13 208.69 305.53 208.73 308.92 208.77 312.32 208.82 315.71 208.88
+319.11 208.94 322.50 209.01 325.89 209.08 329.29 209.16 332.68 209.25
+336.08 209.34 339.47 209.45 342.87 209.56 346.26 209.69 349.66 209.83
+353.05 209.98 356.45 210.15 359.84 210.33 363.23 210.54 366.63 210.76
+370.02 211.00 373.42 211.26 376.81 211.55 380.21 211.87 383.60 212.22
+387.00 212.60 390.39 213.02 393.79 213.48 397.18 213.98 400.57 214.52
+403.97 215.12 407.36 215.78 410.76 216.49 414.15 217.27 417.55 218.12
+M 99 L
+417.55 218.12 420.94 219.05 424.34 220.07 427.73 221.17 431.12 222.38
+434.52 223.69 437.91 225.11 441.31 226.66 444.70 228.34 448.10 230.17
+451.49 232.14 454.89 234.28 458.28 236.59 461.68 239.08 465.07 241.77
+468.46 244.65 471.86 247.76 475.25 251.08 478.65 254.63 482.04 258.43
+485.44 262.47 488.83 266.75 492.23 271.30 495.62 276.10 499.02 281.15
+502.41 286.45 505.80 292.00 509.20 297.78 512.59 303.79 515.99 310.01
+519.38 316.41 522.78 322.99 526.17 329.71 529.57 336.54 532.96 343.46
+536.36 350.44 539.75 357.45 543.14 364.45 546.54 371.41 549.93 378.30
+553.33 385.08 556.72 391.74 560.12 398.24 563.51 404.55 566.91 410.67
+570.30 416.56 573.70 422.22 577.09 427.63 580.48 432.79 583.88 437.69
+587.27 442.33 590.67 446.71 594.06 450.83 597.46 454.69 600.85 458.31
+604.25 461.69 607.64 464.84 611.04 467.78 614.43 470.50 617.82 473.02
+621.22 475.35 624.61 477.51 628.01 479.50 631.40 481.34 634.80 483.03
+638.19 484.58 641.59 486.01 644.98 487.32 648.37 488.53 651.77 489.63
+655.16 490.65 658.56 491.57 661.95 492.42 665.35 493.20 668.74 493.91
+672.14 494.56 675.53 495.16 678.93 495.70 682.32 496.20 685.71 496.65
+689.11 497.06 692.50 497.44 695.90 497.79 699.29 498.10 702.69 498.39
+706.08 498.65 709.48 498.89 712.87 499.11 716.27 499.31 719.66 499.49
+723.05 499.66 726.45 499.81 729.84 499.94 733.24 500.07 736.63 500.18
+740.03 500.29 743.42 500.38 746.82 500.47 750.21 500.55 753.61 500.62
+M 99 L
+753.61 500.62 757.00 500.69 M 1 L
+SF
+103.94 142.88 M (o) sh  103.94 162.98 M (o) sh
+103.94 202.14 M (o) sh  103.94 166.79 M (o) sh
+439.50 170.02 M (o) sh  439.50 179.99 M (o) sh
+439.50 211.38 M (o) sh  439.50 220.04 M (o) sh
+439.50 279.89 M (o) sh  490.01 317.59 M (o) sh
+490.01 308.79 M (o) sh  556.77 424.97 M (o) sh
+556.77 426.59 M (o) sh  657.79 494.07 M (o) sh
+657.79 499.64 M (o) sh  724.55 495.53 M (o) sh
+724.55 497.74 M (o) sh
+107.24 171.22 107.24 121.34 M 1 L
+103.60 171.22 110.88 171.22 M 1 L
+103.60 121.34 110.88 121.34 M 1 L
+107.24 195.71 107.24 137.04 M 1 L
+103.60 195.71 110.88 195.71 M 1 L
+103.60 137.04 110.88 137.04 M 1 L
+107.24 243.68 107.24 167.40 M 1 L
+103.60 243.68 110.88 243.68 M 1 L
+103.60 167.40 110.88 167.40 M 1 L
+107.24 207.89 107.24 132.49 M 1 L
+103.60 207.89 110.88 207.89 M 1 L
+103.60 132.49 110.88 132.49 M 1 L
+442.80 217.43 442.80 129.41 M 1 L
+439.16 217.43 446.44 217.43 M 1 L
+439.16 129.41 446.44 129.41 M 1 L
+442.80 198.80 442.80 167.99 M 1 L
+439.16 198.80 446.44 198.80 M 1 L
+439.16 167.99 446.44 167.99 M 1 L
+442.80 236.50 442.80 193.07 M 1 L
+439.16 236.50 446.44 236.50 M 1 L
+439.16 193.07 446.44 193.07 M 1 L
+442.80 266.57 442.80 180.31 M 1 L
+439.16 266.57 446.44 266.57 M 1 L
+439.16 180.31 446.44 180.31 M 1 L
+442.80 317.77 442.80 248.82 M 1 L
+439.16 317.77 446.44 317.77 M 1 L
+439.16 248.82 446.44 248.82 M 1 L
+493.31 365.00 493.31 276.98 M 1 L
+489.66 365.00 496.95 365.00 M 1 L
+489.66 276.98 496.95 276.98 M 1 L
+493.31 337.42 493.31 286.96 M 1 L
+489.66 337.42 496.95 337.42 M 1 L
+489.66 286.96 496.95 286.96 M 1 L
+560.07 445.39 560.07 411.36 M 1 L
+556.43 445.39 563.72 445.39 M 1 L
+556.43 411.36 563.72 411.36 M 1 L
+560.07 452.73 560.07 407.25 M 1 L
+556.43 452.73 563.72 452.73 M 1 L
+556.43 407.25 563.72 407.25 M 1 L
+661.09 513.31 661.09 481.62 M 1 L
+657.44 513.31 664.73 513.31 M 1 L
+657.44 481.62 664.73 481.62 M 1 L
+661.09 518.89 661.09 487.20 M 1 L
+657.44 518.89 664.73 518.89 M 1 L
+657.44 487.20 664.73 487.20 M 1 L
+727.85 510.96 727.85 486.91 M 1 L
+724.21 510.96 731.50 510.96 M 1 L
+724.21 486.91 731.50 486.91 M 1 L
+727.85 526.66 727.85 475.61 M 1 L
+724.21 526.66 731.50 526.66 M 1 L
+724.21 475.61 731.50 475.61 M 1 L
+LF
+407.55  24.00 M (log ) sh
+LUF
+440.00  24.00 M ((b)) sh
+LF
+ 14.00 324.00 M (mass ratio) r90sh
+417.55 586.00 M (Figure 1) csh
+
+LF
+100.00 505.26 M ( Classical ratio for D ) sh
+SF
+265.00 515.26 M ( (3) )sh
+LF
+265.00 495.00 M ( 4 ) sh
+LUF
+540 350 M (\254) sh
+LF
+555 350 M ( Theoretical prediction ) sh
+
+LF
+520.00 215.26 M ( Classical ratio for G ) sh
+SF
+685.00 225.26 M ( (1) )sh
+LF
+685.00 205.00 M ( 2 ) sh
+
+eplot
+%%EndObject graph 1
+
+epage
+end
+showpage
+
+%%Trailer
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%	figs2a2b.ps
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%!PS-Adobe-2.0
+%%Creator: dma0gmw
+%%Title: MATLAB graph
+%%CreationDate: 06/20/92  10:17:57
+%%Pages: 001
+%%BoundingBox: 080 036 532 756
+%%DocumentFonts: Times-Roman
+%%DocumentNeededFonts: Times-Roman
+%%EndComments
+
+% MathWorks dictionary
+/mathworks 50 dict begin
+
+% definition operators
+/bdef {bind def} bind def
+/xdef {exch def} bdef
+
+% page state control
+/pgsv () def
+/bpage {/pgsv save def} bdef
+/epage {pgsv restore} bdef
+/bplot {gsave} bdef
+/eplot {grestore} bdef
+
+% bounding box in default coordinates
+/dx 0 def
+/dy 0 def
+/sides {/dx urx llx sub def /dy ury lly sub def} bdef
+/llx 0 def
+/lly 0 def
+/urx 0 def
+/ury 0 def
+/bbox {/ury xdef /urx xdef /lly xdef /llx xdef sides} bdef
+
+% orientation switch
+/por true def
+/portrait {/por true def} bdef
+/landscape {/por false def} bdef
+
+% coordinate system mappings
+/px 8.5 72 mul def
+/py 11.0 72 mul def
+/port {dx py div dy px div scale} bdef
+/land {-90.0 rotate dy neg 0 translate dy py div dx px div scale} bdef
+/csm {llx lly translate por {port} {land} ifelse} bdef
+
+% line types: solid, dotted, dashed, dotdash
+/SO { []        0 setdash } bdef
+/DO { [0 4]     0 setdash } bdef
+/DA { [4]       0 setdash } bdef
+/DD { [0 4 3 4] 0 setdash } bdef
+
+% macros for moveto and polyline
+/M {moveto}  bdef
+/L {{lineto} repeat stroke} bdef
+
+% font control
+/font_spec () def
+/lfont currentfont def
+/sfont currentfont def
+/selfont {/font_spec xdef} bdef
+/savefont {font_spec findfont exch scalefont def} bdef
+/LF {lfont setfont} bdef
+/SF {sfont setfont} bdef
+
+/lufont currentfont def
+/sufont currentfont def
+/LUF {lufont setfont} bdef
+/SUF {sufont setfont} bdef
+
+
+% text display
+/sh {show} bdef
+/csh {dup stringwidth pop 2 div neg 0 rmoveto show} bdef
+/rsh {dup stringwidth pop neg 0 rmoveto show} bdef
+/r90sh {gsave currentpoint translate 90 rotate csh grestore} bdef
+
+currentdict end def %dictionary
+%%EndProlog
+
+%%BeginSetup
+mathworks begin
+
+% fonts for text, standard numbers and exponents
+%%IncludeFont: Times-Roman
+/Times-Roman selfont
+/lfont 20 savefont
+/sfont 14 savefont
+
+/Symbol selfont
+/lufont 20 savefont
+/sufont 14 savefont
+
+%line width, line cap, and joint spec
+.5 setlinewidth 1 setlinecap 1 setlinejoin
+
+end
+%%EndSetup
+
+%%Page: 1 1
+%%BeginPageSetup
+%%PageBoundingBox: 080 036 532 756
+mathworks begin
+bpage
+%%EndPageSetup
+
+%%BeginObject: graph 1
+bplot
+80 407 532 756 bbox portrait csm
+
+SO
+ 78.09  77.33 757.00  77.33 757.00 570.67  78.09 570.67  78.09  77.33 M 4 L
+LF
+ 78.09 140.81  84.83 140.81 M 1 L
+750.27 140.81 757.00 140.81 M 1 L
+ 73.09 134.81 M (1.86) rsh
+ 78.09 208.86  84.83 208.86 M 1 L
+750.27 208.86 757.00 208.86 M 1 L
+ 73.09 202.86 M (1.88) rsh
+ 78.09 276.91  84.83 276.91 M 1 L
+750.27 276.91 757.00 276.91 M 1 L
+ 73.09 270.91 M (1.9) rsh
+ 78.09 344.95  84.83 344.95 M 1 L
+750.27 344.95 757.00 344.95 M 1 L
+ 73.09 338.95 M (1.92) rsh
+ 78.09 413.00  84.83 413.00 M 1 L
+750.27 413.00 757.00 413.00 M 1 L
+ 73.09 407.00 M (1.94) rsh
+ 78.09 481.05  84.83 481.05 M 1 L
+750.27 481.05 757.00 481.05 M 1 L
+ 73.09 475.05 M (1.96) rsh
+ 78.09 549.09  84.83 549.09 M 1 L
+750.27 549.09 757.00 549.09 M 1 L
+ 73.09 543.09 M (1.98) rsh
+ 78.09  55.33 M (1) csh
+162.96  77.33 162.96  82.53 M 1 L
+162.96 565.47 162.96 570.67 M 1 L
+162.96  55.33 M (1.5) csh
+247.82  77.33 247.82  82.53 M 1 L
+247.82 565.47 247.82 570.67 M 1 L
+247.82  55.33 M (2) csh
+332.68  77.33 332.68  82.53 M 1 L
+332.68 565.47 332.68 570.67 M 1 L
+332.68  55.33 M (2.5) csh
+417.55  77.33 417.55  82.53 M 1 L
+417.55 565.47 417.55 570.67 M 1 L
+417.55  55.33 M (3) csh
+502.41  77.33 502.41  82.53 M 1 L
+502.41 565.47 502.41 570.67 M 1 L
+502.41  55.33 M (3.5) csh
+587.27  77.33 587.27  82.53 M 1 L
+587.27 565.47 587.27 570.67 M 1 L
+587.27  55.33 M (4) csh
+672.14  77.33 672.14  82.53 M 1 L
+672.14 565.47 672.14 570.67 M 1 L
+672.14  55.33 M (4.5) csh
+757.00  55.33 M (5) csh
+DO
+ 78.09 385.26 757.00 385.26 M 1 L
+SO
+132.16 372.51 132.16 322.84 M 1 L
+123.68 372.51 140.65 372.51 M 1 L
+123.68 322.84 140.65 322.84 M 1 L
+131.72 407.56 131.72 351.76 M 1 L
+123.23 407.56 140.21 407.56 M 1 L
+123.23 351.76 140.21 351.76 M 1 L
+132.78 395.31 132.78 342.91 M 1 L
+124.30 395.31 141.27 395.31 M 1 L
+124.30 342.91 141.27 342.91 M 1 L
+
+%%161.31 390.54 161.31 338.15 M 1 L
+%%152.83 390.54 169.80 390.54 M 1 L
+%%152.83 338.15 169.80 338.15 M 1 L
+161.50 443.96 161.50 325.56 M 1 L
+153.02 443.96 169.99 443.96 M 1 L
+153.02 325.56 169.99 325.56 M 1 L
+
+376.06 451.79 376.06 336.11 M 1 L
+367.58 451.79 384.55 451.79 M 1 L
+367.58 336.11 384.55 336.11 M 1 L
+434.32 484.79 434.32 379.32 M 1 L
+425.84 484.79 442.81 484.79 M 1 L
+425.84 379.32 442.81 379.32 M 1 L
+LUF
+124.51 344.27 M (\250) sh
+LF
+127.42 376.26 M (o) sh
+LUF
+128.68 365.71 M (\267) sh
+LF
+%%157.01 360.95 M (o) sh
+157.20 381.36 M (o) sh
+371.76 390.55 M (o) sh
+430.02 428.65 M (o) sh
+LF
+417.55  14.00 M (correlation length for ) csh
+LUF
+530.00  14.00 M (b = 50) csh
+LF
+ 14.00 324.00 M (mass ratio) r90sh
+417.55 586.00 M (Figure 2a) csh
+LUF
+500.00 249.94 M ( 60 \264 60 \250) sh
+500.00 189.81 M ( 60 \264 30 \267) sh
+500.00 219.55 M ( 60 \264 40 o) sh
+LF
+500.00 355.26 M ( Classical ratio for D ) sh
+SF
+665.00 365.26 M ( (3) )sh
+LF
+665.00 345.00 M ( 4 ) sh
+eplot
+%%EndObject graph 1
+
+%%BeginObject: graph 2
+bplot
+80 36 532 385 bbox portrait csm
+
+SO
+ 78.09  77.33 757.00  77.33 757.00 570.67  78.09 570.67  78.09  77.33 M 4 L
+LF
+ 78.09  81.76  84.83  81.76 M 1 L
+750.27  81.76 757.00  81.76 M 1 L
+ 73.09  75.76 M (1.84) rsh
+ 78.09 149.81  84.83 149.81 M 1 L
+750.27 149.81 757.00 149.81 M 1 L
+ 73.09 143.81 M (1.86) rsh
+ 78.09 217.86  84.83 217.86 M 1 L
+750.27 217.86 757.00 217.86 M 1 L
+ 73.09 211.86 M (1.88) rsh
+ 78.09 285.90  84.83 285.90 M 1 L
+750.27 285.90 757.00 285.90 M 1 L
+ 73.09 279.90 M (1.9) rsh
+ 78.09 353.95  84.83 353.95 M 1 L
+750.27 353.95 757.00 353.95 M 1 L
+ 73.09 347.95 M (1.92) rsh
+ 78.09 422.00  84.83 422.00 M 1 L
+750.27 422.00 757.00 422.00 M 1 L
+ 73.09 416.00 M (1.94) rsh
+ 78.09 490.04  84.83 490.04 M 1 L
+750.27 490.04 757.00 490.04 M 1 L
+ 73.09 484.04 M (1.96) rsh
+ 78.09 558.09  84.83 558.09 M 1 L
+750.27 558.09 757.00 558.09 M 1 L
+ 73.09 552.09 M (1.98) rsh
+ 78.09  55.33 M (1) csh
+162.96  77.33 162.96  82.53 M 1 L
+162.96 565.47 162.96 570.67 M 1 L
+162.96  55.33 M (1.5) csh
+247.82  77.33 247.82  82.53 M 1 L
+247.82 565.47 247.82 570.67 M 1 L
+247.82  55.33 M (2) csh
+332.68  77.33 332.68  82.53 M 1 L
+332.68 565.47 332.68 570.67 M 1 L
+332.68  55.33 M (2.5) csh
+417.55  77.33 417.55  82.53 M 1 L
+417.55 565.47 417.55 570.67 M 1 L
+417.55  55.33 M (3) csh
+502.41  77.33 502.41  82.53 M 1 L
+502.41 565.47 502.41 570.67 M 1 L
+502.41  55.33 M (3.5) csh
+587.27  77.33 587.27  82.53 M 1 L
+587.27 565.47 587.27 570.67 M 1 L
+587.27  55.33 M (4) csh
+672.14  77.33 672.14  82.53 M 1 L
+672.14 565.47 672.14 570.67 M 1 L
+672.14  55.33 M (4.5) csh
+757.00  55.33 M (5) csh
+SO
+197.36 431.52 197.36 300.19 M 1 L
+188.88 431.52 205.85 431.52 M 1 L
+188.88 300.19 205.85 300.19 M 1 L
+198.65 422.00 198.65 348.51 M 1 L
+190.16 422.00 207.13 422.00 M 1 L
+190.16 348.51 207.13 348.51 M 1 L
+198.70 415.19 198.70 315.84 M 1 L
+190.21 415.19 207.18 415.19 M 1 L
+190.21 315.84 207.18 315.84 M 1 L
+299.98 434.93 299.98 361.44 M 1 L
+291.50 434.93 308.47 434.93 M 1 L
+291.50 361.44 308.47 361.44 M 1 L
+435.96 418.94 435.96 299.85 M 1 L
+427.47 418.94 444.45 418.94 M 1 L
+427.47 299.85 444.45 299.85 M 1 L
+617.63 456.02 617.63 303.60 M 1 L
+609.14 456.02 626.12 456.02 M 1 L
+609.14 303.60 626.12 303.60 M 1 L
+LUF
+189.71 362.46 M (\250) sh
+LF
+194.35 381.85 M (o) sh
+LUF
+194.60 362.12 M (\267) sh
+LF
+295.68 394.78 M (o) sh
+431.66 355.99 M (o) sh
+613.33 376.41 M (o) sh
+LF
+417.55  14.00 M (correlation length for ) csh
+LUF
+530.00  14.00 M (b = 20) csh
+LF
+ 14.00 324.00 M (mass ratio) r90sh
+417.55 586.00 M (Figure 2b) csh
+LUF
+500.00 216.06 M ( 60 \264 60 \250) sh
+500.00 156.59 M ( 60 \264 30 \267) sh
+500.00 186.98 M ( 60 \264 40 o) sh
+eplot
+%%EndObject graph 2
+
+epage
+end
+showpage
+
+%%Trailer
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%	figs2c2d.ps
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%!PS-Adobe-2.0 EPSF-1.2
+%%Creator: dma0gmw
+%%Title: MATLAB graph
+%%CreationDate: 06/20/92  10:17:59
+%%Pages: 001
+%%BoundingBox: 080 036 532 756
+%%DocumentFonts: Times-Roman
+%%DocumentNeededFonts: Times-Roman
+%%EndComments
+
+% MathWorks dictionary
+/mathworks 50 dict begin
+
+% definition operators
+/bdef {bind def} bind def
+/xdef {exch def} bdef
+
+% page state control
+/pgsv () def
+/bpage {/pgsv save def} bdef
+/epage {pgsv restore} bdef
+/bplot {gsave} bdef
+/eplot {grestore} bdef
+
+% bounding box in default coordinates
+/dx 0 def
+/dy 0 def
+/sides {/dx urx llx sub def /dy ury lly sub def} bdef
+/llx 0 def
+/lly 0 def
+/urx 0 def
+/ury 0 def
+/bbox {/ury xdef /urx xdef /lly xdef /llx xdef sides} bdef
+
+% orientation switch
+/por true def
+/portrait {/por true def} bdef
+/landscape {/por false def} bdef
+
+% coordinate system mappings
+/px 8.5 72 mul def
+/py 11.0 72 mul def
+/port {dx py div dy px div scale} bdef
+/land {-90.0 rotate dy neg 0 translate dy py div dx px div scale} bdef
+/csm {llx lly translate por {port} {land} ifelse} bdef
+
+% line types: solid, dotted, dashed, dotdash
+/SO { []        0 setdash } bdef
+/DO { [0 4]     0 setdash } bdef
+/DA { [4]       0 setdash } bdef
+/DD { [0 4 3 4] 0 setdash } bdef
+
+% macros for moveto and polyline
+/M {moveto}  bdef
+/L {{lineto} repeat stroke} bdef
+
+% font control
+/font_spec () def
+/lfont currentfont def
+/sfont currentfont def
+/selfont {/font_spec xdef} bdef
+/savefont {font_spec findfont exch scalefont def} bdef
+/LF {lfont setfont} bdef
+/SF {sfont setfont} bdef
+
+/lufont currentfont def
+/sufont currentfont def
+/LUF {lufont setfont} bdef
+/SUF {sufont setfont} bdef
+% text display
+/sh {show} bdef
+/csh {dup stringwidth pop 2 div neg 0 rmoveto show} bdef
+/rsh {dup stringwidth pop neg 0 rmoveto show} bdef
+/r90sh {gsave currentpoint translate 90 rotate csh grestore} bdef
+
+currentdict end def %dictionary
+%%EndProlog
+
+%%BeginSetup
+mathworks begin
+
+% fonts for text, standard numbers and exponents
+%%IncludeFont: Times-Roman
+/Times-Roman selfont
+/lfont 20 savefont
+/sfont 14 savefont
+
+
+/Symbol selfont
+/lufont 20 savefont
+/sufont 14 savefont
+
+
+%line width, line cap, and joint spec
+.5 setlinewidth 1 setlinecap 1 setlinejoin
+
+end
+%%EndSetup
+
+%%Page: 1 1
+%%BeginPageSetup
+%%PageBoundingBox: 080 036 532 756
+mathworks begin
+bpage
+%%EndPageSetup
+
+%%BeginObject: graph 1
+bplot
+80 407 532 756 bbox portrait csm
+
+SO
+ 78.09  77.33 757.00  77.33 757.00 570.67  78.09 570.67  78.09  77.33 M 4 L
+LF
+ 78.09  77.94  84.83  77.94 M 1 L
+750.27  77.94 757.00  77.94 M 1 L
+ 73.09  71.94 M (1.8) rsh
+ 78.09 145.99  84.83 145.99 M 1 L
+750.27 145.99 757.00 145.99 M 1 L
+ 73.09 139.99 M (1.82) rsh
+ 78.09 214.03  84.83 214.03 M 1 L
+750.27 214.03 757.00 214.03 M 1 L
+ 73.09 208.03 M (1.84) rsh
+ 78.09 282.08  84.83 282.08 M 1 L
+750.27 282.08 757.00 282.08 M 1 L
+ 73.09 276.08 M (1.86) rsh
+ 78.09 350.12  84.83 350.12 M 1 L
+750.27 350.12 757.00 350.12 M 1 L
+ 73.09 344.12 M (1.88) rsh
+ 78.09 418.17  84.83 418.17 M 1 L
+750.27 418.17 757.00 418.17 M 1 L
+ 73.09 412.17 M (1.9) rsh
+ 78.09 486.22  84.83 486.22 M 1 L
+750.27 486.22 757.00 486.22 M 1 L
+ 73.09 480.22 M (1.92) rsh
+ 78.09 554.26  84.83 554.26 M 1 L
+750.27 554.26 757.00 554.26 M 1 L
+ 73.09 548.26 M (1.94) rsh
+ 78.09  55.33 M (1) csh
+162.96  77.33 162.96  82.53 M 1 L
+162.96 565.47 162.96 570.67 M 1 L
+162.96  55.33 M (1.5) csh
+247.82  77.33 247.82  82.53 M 1 L
+247.82 565.47 247.82 570.67 M 1 L
+247.82  55.33 M (2) csh
+332.68  77.33 332.68  82.53 M 1 L
+332.68 565.47 332.68 570.67 M 1 L
+332.68  55.33 M (2.5) csh
+417.55  77.33 417.55  82.53 M 1 L
+417.55 565.47 417.55 570.67 M 1 L
+417.55  55.33 M (3) csh
+502.41  77.33 502.41  82.53 M 1 L
+502.41 565.47 502.41 570.67 M 1 L
+502.41  55.33 M (3.5) csh
+587.27  77.33 587.27  82.53 M 1 L
+587.27 565.47 587.27 570.67 M 1 L
+587.27  55.33 M (4) csh
+672.14  77.33 672.14  82.53 M 1 L
+672.14 565.47 672.14 570.67 M 1 L
+672.14  55.33 M (4.5) csh
+757.00  55.33 M (5) csh
+SO
+237.55 296.71 237.55 215.73 M 1 L
+229.06 296.71 246.04 296.71 M 1 L
+229.06 215.73 246.04 215.73 M 1 L
+303.63 396.74 303.63 317.80 M 1 L
+295.15 396.74 312.12 396.74 M 1 L
+295.15 317.80 312.12 317.80 M 1 L
+368.95 413.75 368.95 308.28 M 1 L
+360.47 413.75 377.44 413.75 M 1 L
+360.47 308.28 377.44 308.28 M 1 L
+495.45 452.54 495.45 330.05 M 1 L
+486.97 452.54 503.94 452.54 M 1 L
+486.97 330.05 503.94 330.05 M 1 L
+LF
+233.25 252.82 M (o) sh
+299.33 353.87 M (o) sh
+364.65 357.61 M (o) sh
+491.15 387.89 M (o) sh
+LF
+417.55  14.00 M (correlation length for ) csh
+LUF
+530.00  14.00 M (b = 5) csh
+LF
+ 14.00 324.00 M (mass ratio) r90sh
+417.55 586.00 M (Figure 2c) csh
+LUF
+586.39 247.77 M ( 60 \264 40 o) sh
+eplot
+%%EndObject graph 1
+
+%%BeginObject: graph 2
+bplot
+80 36 532 385 bbox portrait csm
+
+SO
+ 78.09  77.33 757.00  77.33 757.00 570.67  78.09 570.67  78.09  77.33 M 4 L
+LF
+ 78.09  95.33  84.83  95.33 M 1 L
+750.27  95.33 757.00  95.33 M 1 L
+ 73.09  89.33 M (1.72) rsh
+ 78.09 163.38  84.83 163.38 M 1 L
+750.27 163.38 757.00 163.38 M 1 L
+ 73.09 157.38 M (1.74) rsh
+ 78.09 231.42  84.83 231.42 M 1 L
+750.27 231.42 757.00 231.42 M 1 L
+ 73.09 225.42 M (1.76) rsh
+ 78.09 299.47  84.83 299.47 M 1 L
+750.27 299.47 757.00 299.47 M 1 L
+ 73.09 293.47 M (1.78) rsh
+ 78.09 367.52  84.83 367.52 M 1 L
+750.27 367.52 757.00 367.52 M 1 L
+ 73.09 361.52 M (1.8) rsh
+ 78.09 435.56  84.83 435.56 M 1 L
+750.27 435.56 757.00 435.56 M 1 L
+ 73.09 429.56 M (1.82) rsh
+ 78.09 503.61  84.83 503.61 M 1 L
+750.27 503.61 757.00 503.61 M 1 L
+ 73.09 497.61 M (1.84) rsh
+ 78.09  55.33 M (1) csh
+162.96  77.33 162.96  82.53 M 1 L
+162.96 565.47 162.96 570.67 M 1 L
+162.96  55.33 M (1.5) csh
+247.82  77.33 247.82  82.53 M 1 L
+247.82 565.47 247.82 570.67 M 1 L
+247.82  55.33 M (2) csh
+332.68  77.33 332.68  82.53 M 1 L
+332.68 565.47 332.68 570.67 M 1 L
+332.68  55.33 M (2.5) csh
+417.55  77.33 417.55  82.53 M 1 L
+417.55 565.47 417.55 570.67 M 1 L
+417.55  55.33 M (3) csh
+502.41  77.33 502.41  82.53 M 1 L
+502.41 565.47 502.41 570.67 M 1 L
+502.41  55.33 M (3.5) csh
+587.27  77.33 587.27  82.53 M 1 L
+587.27 565.47 587.27 570.67 M 1 L
+587.27  55.33 M (4) csh
+672.14  77.33 672.14  82.53 M 1 L
+672.14 565.47 672.14 570.67 M 1 L
+672.14  55.33 M (4.5) csh
+757.00  55.33 M (5) csh
+SO
+678.80 499.87 678.80 295.73 M 1 L
+670.31 499.87 687.29 499.87 M 1 L
+670.31 295.73 687.29 295.73 M 1 L
+499.34 435.90 499.34 318.86 M 1 L
+490.85 435.90 507.82 435.90 M 1 L
+490.85 318.86 507.82 318.86 M 1 L
+LF
+674.50 394.40 M (o) sh
+495.04 373.98 M (o) sh
+LF
+417.55  14.00 M (correlation length for ) csh
+LUF
+530.00  14.00 M (b = 2) csh
+LF
+ 14.00 324.00 M (mass ratio) r90sh
+417.55 586.00 M (Figure 2d) csh
+LUF
+176.47 462.70 M ( 60 \264 40 o) sh
+eplot
+%%EndObject graph 2
+
+epage
+end
+showpage
+
+%%Trailer
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%	figs2e2f.ps
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%!PS-Adobe-2.0 EPSF-1.2
+%%Creator: dma0gmw
+%%Title: MATLAB graph
+%%CreationDate: 06/20/92  10:18:01
+%%Pages: 001
+%%BoundingBox: 080 036 532 756
+%%DocumentFonts: Times-Roman
+%%DocumentNeededFonts: Times-Roman
+%%EndComments
+
+% MathWorks dictionary
+/mathworks 50 dict begin
+
+% definition operators
+/bdef {bind def} bind def
+/xdef {exch def} bdef
+
+% page state control
+/pgsv () def
+/bpage {/pgsv save def} bdef
+/epage {pgsv restore} bdef
+/bplot {gsave} bdef
+/eplot {grestore} bdef
+
+% bounding box in default coordinates
+/dx 0 def
+/dy 0 def
+/sides {/dx urx llx sub def /dy ury lly sub def} bdef
+/llx 0 def
+/lly 0 def
+/urx 0 def
+/ury 0 def
+/bbox {/ury xdef /urx xdef /lly xdef /llx xdef sides} bdef
+
+% orientation switch
+/por true def
+/portrait {/por true def} bdef
+/landscape {/por false def} bdef
+
+% coordinate system mappings
+/px 8.5 72 mul def
+/py 11.0 72 mul def
+/port {dx py div dy px div scale} bdef
+/land {-90.0 rotate dy neg 0 translate dy py div dx px div scale} bdef
+/csm {llx lly translate por {port} {land} ifelse} bdef
+
+% line types: solid, dotted, dashed, dotdash
+/SO { []        0 setdash } bdef
+/DO { [0 4]     0 setdash } bdef
+/DA { [4]       0 setdash } bdef
+/DD { [0 4 3 4] 0 setdash } bdef
+
+% macros for moveto and polyline
+/M {moveto}  bdef
+/L {{lineto} repeat stroke} bdef
+
+% font control
+/font_spec () def
+/lfont currentfont def
+/sfont currentfont def
+/selfont {/font_spec xdef} bdef
+/savefont {font_spec findfont exch scalefont def} bdef
+/LF {lfont setfont} bdef
+/SF {sfont setfont} bdef
+
+
+/lufont currentfont def
+/sufont currentfont def
+/LUF {lufont setfont} bdef
+/SUF {sufont setfont} bdef
+
+% text display
+/sh {show} bdef
+/csh {dup stringwidth pop 2 div neg 0 rmoveto show} bdef
+/rsh {dup stringwidth pop neg 0 rmoveto show} bdef
+/r90sh {gsave currentpoint translate 90 rotate csh grestore} bdef
+
+currentdict end def %dictionary
+%%EndProlog
+
+%%BeginSetup
+mathworks begin
+
+% fonts for text, standard numbers and exponents
+%%IncludeFont: Times-Roman
+/Times-Roman selfont
+/lfont 20 savefont
+/sfont 14 savefont
+
+
+/Symbol selfont
+/lufont 20 savefont
+/sufont 14 savefont
+
+%line width, line cap, and joint spec
+.5 setlinewidth 1 setlinecap 1 setlinejoin
+
+end
+%%EndSetup
+
+%%Page: 1 1
+%%BeginPageSetup
+%%PageBoundingBox: 080 036 532 756
+mathworks begin
+bpage
+%%EndPageSetup
+
+%%BeginObject: graph 1
+bplot
+80 407 532 756 bbox portrait csm
+
+SO
+ 78.09  77.33 757.00  77.33 757.00 570.67  78.09 570.67  78.09  77.33 M 4 L
+LF
+ 78.09 122.87  84.83 122.87 M 1 L
+750.27 122.87 757.00 122.87 M 1 L
+ 73.09 116.87 M (1.68) rsh
+ 78.09 190.92  84.83 190.92 M 1 L
+750.27 190.92 757.00 190.92 M 1 L
+ 73.09 184.92 M (1.7) rsh
+ 78.09 258.96  84.83 258.96 M 1 L
+750.27 258.96 757.00 258.96 M 1 L
+ 73.09 252.96 M (1.72) rsh
+ 78.09 327.01  84.83 327.01 M 1 L
+750.27 327.01 757.00 327.01 M 1 L
+ 73.09 321.01 M (1.74) rsh
+ 78.09 395.06  84.83 395.06 M 1 L
+750.27 395.06 757.00 395.06 M 1 L
+ 73.09 389.06 M (1.76) rsh
+ 78.09 463.10  84.83 463.10 M 1 L
+750.27 463.10 757.00 463.10 M 1 L
+ 73.09 457.10 M (1.78) rsh
+ 78.09 531.15  84.83 531.15 M 1 L
+750.27 531.15 757.00 531.15 M 1 L
+ 73.09 525.15 M (1.8) rsh
+ 78.09  55.33 M (1) csh
+162.96  77.33 162.96  82.53 M 1 L
+162.96 565.47 162.96 570.67 M 1 L
+162.96  55.33 M (1.5) csh
+247.82  77.33 247.82  82.53 M 1 L
+247.82 565.47 247.82 570.67 M 1 L
+247.82  55.33 M (2) csh
+332.68  77.33 332.68  82.53 M 1 L
+332.68 565.47 332.68 570.67 M 1 L
+332.68  55.33 M (2.5) csh
+417.55  77.33 417.55  82.53 M 1 L
+417.55 565.47 417.55 570.67 M 1 L
+417.55  55.33 M (3) csh
+502.41  77.33 502.41  82.53 M 1 L
+502.41 565.47 502.41 570.67 M 1 L
+502.41  55.33 M (3.5) csh
+587.27  77.33 587.27  82.53 M 1 L
+587.27 565.47 587.27 570.67 M 1 L
+587.27  55.33 M (4) csh
+672.14  77.33 672.14  82.53 M 1 L
+672.14 565.47 672.14 570.67 M 1 L
+672.14  55.33 M (4.5) csh
+757.00  55.33 M (5) csh
+SO
+231.35 321.23 231.35 117.09 M 1 L
+222.86 321.23 239.83 321.23 M 1 L
+222.86 117.09 239.83 117.09 M 1 L
+280.57 278.02 280.57 206.57 M 1 L
+272.09 278.02 289.06 278.02 M 1 L
+272.09 206.57 289.06 206.57 M 1 L
+508.53 365.46 508.53 264.75 M 1 L
+500.05 365.46 517.02 365.46 M 1 L
+500.05 264.75 517.02 264.75 M 1 L
+656.72 435.20 656.72 235.15 M 1 L
+648.23 435.20 665.21 435.20 M 1 L
+648.23 235.15 665.21 235.15 M 1 L
+LF
+227.05 215.76 M (o) sh
+276.27 238.89 M (o) sh
+504.23 311.70 M (o) sh
+652.42 331.78 M (o) sh
+LF
+417.55  14.00 M (correlation length for ) csh
+LUF
+530.00  14.00 M (b = 1) csh
+LF
+ 14.00 324.00 M (mass ratio) r90sh
+417.55 586.00 M (Figure 2e) csh
+LUF
+154.19 480.07 M ( 60 \264 40 o) sh
+eplot
+%%EndObject graph 1
+
+%%BeginObject: graph 2
+bplot
+80 36 532 385 bbox portrait csm
+
+SO
+ 78.09  77.33 757.00  77.33 757.00 570.67  78.09 570.67  78.09  77.33 M 4 L
+LF
+ 78.09 138.39  84.83 138.39 M 1 L
+750.27 138.39 757.00 138.39 M 1 L
+ 73.09 132.39 M (1.66) rsh
+ 78.09 206.44  84.83 206.44 M 1 L
+750.27 206.44 757.00 206.44 M 1 L
+ 73.09 200.44 M (1.68) rsh
+ 78.09 274.48  84.83 274.48 M 1 L
+750.27 274.48 757.00 274.48 M 1 L
+ 73.09 268.48 M (1.7) rsh
+ 78.09 342.53  84.83 342.53 M 1 L
+750.27 342.53 757.00 342.53 M 1 L
+ 73.09 336.53 M (1.72) rsh
+ 78.09 410.58  84.83 410.58 M 1 L
+750.27 410.58 757.00 410.58 M 1 L
+ 73.09 404.58 M (1.74) rsh
+ 78.09 478.62  84.83 478.62 M 1 L
+750.27 478.62 757.00 478.62 M 1 L
+ 73.09 472.62 M (1.76) rsh
+ 78.09 546.67  84.83 546.67 M 1 L
+750.27 546.67 757.00 546.67 M 1 L
+ 73.09 540.67 M (1.78) rsh
+ 78.09  55.33 M (1) csh
+162.96  77.33 162.96  82.53 M 1 L
+162.96 565.47 162.96 570.67 M 1 L
+162.96  55.33 M (1.5) csh
+247.82  77.33 247.82  82.53 M 1 L
+247.82 565.47 247.82 570.67 M 1 L
+247.82  55.33 M (2) csh
+332.68  77.33 332.68  82.53 M 1 L
+332.68 565.47 332.68 570.67 M 1 L
+332.68  55.33 M (2.5) csh
+417.55  77.33 417.55  82.53 M 1 L
+417.55 565.47 417.55 570.67 M 1 L
+417.55  55.33 M (3) csh
+502.41  77.33 502.41  82.53 M 1 L
+502.41 565.47 502.41 570.67 M 1 L
+502.41  55.33 M (3.5) csh
+587.27  77.33 587.27  82.53 M 1 L
+587.27 565.47 587.27 570.67 M 1 L
+587.27  55.33 M (4) csh
+672.14  77.33 672.14  82.53 M 1 L
+672.14 565.47 672.14 570.67 M 1 L
+672.14  55.33 M (4.5) csh
+757.00  55.33 M (5) csh
+DO
+ 78.09 383.53 757.00 383.53 M 1 L
+SO
+211.56 297.62 211.56 181.94 M 1 L
+203.07 297.62 220.04 297.62 M 1 L
+203.07 181.94 220.04 181.94 M 1 L
+384.59 354.44 384.59 218.35 M 1 L
+376.11 354.44 393.08 354.44 M 1 L
+376.11 218.35 393.08 218.35 M 1 L
+508.96 465.69 508.96 288.77 M 1 L
+500.47 465.69 517.44 465.69 M 1 L
+500.47 288.77 517.44 288.77 M 1 L
+698.16 382.68 698.16 207.80 M 1 L
+689.67 382.68 706.65 382.68 M 1 L
+689.67 207.80 706.65 207.80 M 1 L
+LF
+207.26 236.38 M (o) sh
+380.29 282.99 M (o) sh
+504.66 373.83 M (o) sh
+693.86 291.84 M (o) sh
+LF
+417.55  14.00 M (correlation length for ) csh
+LUF
+540.00  14.00 M (b = 0.01) csh
+LF
+ 14.00 324.00 M (mass ratio) r90sh
+417.55 586.00 M (Figure 2f) csh
+LUF
+163.10 486.58 M ( 60 \264 40 o) sh
+
+DO
+ 78.09 383.53 757.00 383.53 M 1 L
+LF
+100.00 395.26 M ( Classical ratio for G ) sh
+SF
+265.00 405.26 M ( (1) )sh
+LF
+265.00 385.00 M ( 2 ) sh
+
+eplot
+%%EndObject graph 2
+
+epage
+end
+showpage
+%%Trailer
+
+
+
+
