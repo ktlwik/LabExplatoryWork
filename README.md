@@ -21,6 +21,7 @@ You can tell how good a clustering is based on silhouette coefficient; Tweak par
 **Task 1: Convergence and Divergence of Topics in Scientific Literature**
 
 **For clusters of size >= n:**
+
 M1: Determine the diameter (maximum distance between points  in the cluster)
 M2: Determine the average distance between points in the cluster
 Experiment between cosine similarity or euclidean distance as distance metrics for M1 and M2 
@@ -28,6 +29,7 @@ M3: Calculate the centroid of each topic cluster
 Create an intercluster distance matrix for a given period. 
 
 **Task 1: Convergence and Divergence of Topics in Scientific Literature**
+
 Given our initial set of clusters from Period 1(1992 - 1993), we need to find their corresponding clusters in the subsequent periods (Period 2: 1994-1995, Period 3: 1996-1997.. and so on). We do the matching based on normalized mutual information. 
 
 For example, if NMI(Cluster 1 in Period 1, Cluster 3 in Period 2) > ϴ, then they are matching clusters. Some clusters from Period n may not have any match in Period n+1. In this case, these clusters have dissolved. Meanwhile, clusters in Period n+1 that do not have any match from Period n are newborn clusters. Experiment on the value of ϴ. 
