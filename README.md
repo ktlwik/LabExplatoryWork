@@ -34,7 +34,7 @@ For example, if NMI(Cluster 1 in Period 1, Cluster 3 in Period 2) > ϴ, then the
 
 We are only concerned with clusters that are persistent over time. 
 
-**DETECTING CONVERGENCE **
+**DETECTING CONVERGENCE**
 
 Convergence occurs when the intercluster distance between 2 clusters decrease over time. 
 
