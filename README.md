@@ -1,5 +1,6 @@
 # LabExplatoryWork
 Objectives: 
+
 1)Determine underlying research themes in scientific literature   
 2)Create a model for predicting how these research themes will evolve over time 
 
@@ -18,6 +19,7 @@ You can tell how good a clustering is based on silhouette coefficient; Tweak par
 
 
 Task 1: Convergence and Divergence of Topics in Scientific Literature
+
 For clusters of size >= n:
 M1: Determine the diameter (maximum distance between points  in the cluster)
 M2: Determine the average distance between points in the cluster
